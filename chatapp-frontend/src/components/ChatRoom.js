@@ -1343,14 +1343,14 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
      * Saves a new annotation to the backend and updates the frontend state.
      */
     const onSubmit = async (annotation) => {
-        const { geometry, text } = annotation;
+        const { geometry, data } = annotation;  // 'data' contains the text
 
         // Prepare the annotation data to send to the backend
         const annotationData = {
-            chatroom_id: chatroomId,
-            user_id: userId,
+            chatroom: chatroomId,
+            user: userId,
             geometry, 
-            text: text,
+            text: data.text,  // Ensure text is captured correctly
         };
 
         try {
@@ -1378,6 +1378,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
         // Reset the annotation value
         setAnnotation({});
     };
+
 
     /**
      * **Handle Annotation Click**
@@ -1467,7 +1468,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                         src="/images/taskimg1.jpg" // Ensure this path is correct
                         alt="Annotation Area"
                         annotations={annotations}
-                        type="rectangle" // Fixed type for drawing rectangles
+                        type={selectedTool === 'erase' ? 'erase' : selectedTool} // Dynamically set type
                         value={annotation}
                         onChange={onChange}
                         onSubmit={onSubmit}

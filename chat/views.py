@@ -60,7 +60,7 @@ import openai
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from .models import ChatRoom
+from .models import ChatRoom, Annotation
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
@@ -70,11 +70,8 @@ from .serializers import AnnotationSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-# from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError  # Imported directly
 from rest_framework.views import APIView
-from .models import Annotation, ChatRoom
-
 
 
 
@@ -185,28 +182,21 @@ class AnnotationListCreateView(generics.ListCreateAPIView):
         user_id = self.request.data.get('user')
         chatroom_id = self.request.data.get('chatroom')
         text = self.request.data.get('text')
+        geometry = self.request.data.get('geometry')  # Ensure geometry is captured
 
         try:
             user = User.objects.get(id=user_id)
             chatroom = ChatRoom.objects.get(id=chatroom_id)
         except User.DoesNotExist:
-            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+            raise ValidationError({'error': 'User not found.'})  # Use ValidationError directly
         except ChatRoom.DoesNotExist:
-            return Response({'error': 'ChatRoom not found.'}, status=status.HTTP_404_NOT_FOUND)
+            raise ValidationError({'error': 'ChatRoom not found.'})
 
         # Log the annotation details
         print(f"Creating annotation: User ID: {user_id}, Chatroom ID: {chatroom_id}, Text: {text}")
 
-        # Create and save the annotation
-        annotation = Annotation(
-            user=user,
-            chatroom=chatroom,
-            text=text,
-            is_temp=False
-        )
-        annotation.save()
-
-        return Response({'status': 'Annotation saved successfully.'}, status=status.HTTP_201_CREATED)
+        # Save the annotation using the serializer
+        serializer.save(user=user, chatroom=chatroom, is_temp=False)
 
 
 class SubmitAnnotationView(APIView):

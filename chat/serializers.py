@@ -19,5 +19,5 @@ class MessageSerializer(serializers.ModelSerializer):
 class AnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Annotation
-        fields = ['id', 'chatroom', 'user','geometry' 'text', 'created_at']
+        fields = ['id', 'chatroom', 'user','geometry', 'text', 'created_at']
         read_only_fields = ['id', 'created_at']
