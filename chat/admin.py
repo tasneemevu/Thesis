@@ -1,9 +1,10 @@
 from django.contrib import admin
-from .models import ChatRoom,  Annotation
+from .models import ChatRoom,  Annotation, AnnotatedImage
 from .models import Task
 
 admin.site.register(ChatRoom)
 admin.site.register(Annotation)
+admin.site.register(AnnotatedImage)
 
 # Register your models here
 

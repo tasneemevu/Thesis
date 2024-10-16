@@ -60,7 +60,7 @@ import openai
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from .models import ChatRoom, Annotation
+from .models import ChatRoom, Annotation, AnnotatedImage
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
@@ -72,7 +72,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError  # Imported directly
 from rest_framework.views import APIView
-
+import base64
+import uuid
+from django.core.files.base import ContentFile
 
 
 
@@ -219,20 +221,81 @@ class SubmitAnnotationView(APIView):
             return Response({'error': 'No temporary annotation found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class ClearAnnotationView(APIView):
+# class ClearAnnotationView(APIView):
+#     def delete(self, request):
+#         chatroom_id = request.query_params.get('chatroom_id')
+
+#         if not chatroom_id:
+#             return Response({'error': 'Chatroom ID not provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         try:
+#             chatroom = ChatRoom.objects.get(id=chatroom_id)
+#         except ChatRoom.DoesNotExist:
+#             return Response({'error': 'ChatRoom not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+#         # Delete all annotations for the chatroom
+#         deleted_count, _ = Annotation.objects.filter(chatroom=chatroom).delete()
+
+#         return Response({'status': f'All {deleted_count} annotations cleared.'}, status=status.HTTP_200_OK)
+
+        
+
+
+# class SaveAnnotatedImageView(APIView):
+#     permission_classes = [permissions.AllowAny]  # Adjust as necessary
+
+#     def post(self, request):
+#         image_data = request.data.get('image')
+
+#         if not image_data:
+#             return Response({'error': 'No image data provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # Decode the base64 image
+#         format, imgstr = image_data.split(';base64,') 
+#         ext = format.split('/')[-1]
+#         data = ContentFile(base64.b64decode(imgstr), name=f"annotated_{uuid.uuid4()}.{ext}")
+
+#         # Save the image to a model (assuming you have an AnnotatedImage model)
+#         annotated_image = AnnotatedImage.objects.create(
+#             chatroom_id=request.data.get('chatroom_id'),
+#             user_id=request.data.get('user_id'),
+#             image=data
+#         )
+
+#         return Response({'status': 'Image saved successfully.', 'image_url': annotated_image.image.url}, status=status.HTTP_201_CREATED)
+class SaveAnnotatedImageView(APIView):
+    permission_classes = [permissions.AllowAny]  # Adjust as necessary
+
     def post(self, request):
+        image_data = request.data.get('image')
         chatroom_id = request.data.get('chatroom_id')
-        user_id = request.data.get('user_id')  # Get the user_id from the request
+        user_id = request.data.get('user_id')
+
+        if not image_data:
+            return Response({'error': 'No image data provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            user = User.objects.get(id=user_id)  # Fetch the user based on user_id
+            user = User.objects.get(id=user_id)
+            chatroom = ChatRoom.objects.get(id=chatroom_id)
         except User.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except ChatRoom.DoesNotExist:
+            return Response({'error': 'ChatRoom not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         try:
-            # Get the temporary annotation for the user and chatroom
-            annotation = Annotation.objects.get(chatroom_id=chatroom_id, user=user, is_temp=True)
-            annotation.delete()  # Clear the annotation
-            return Response({'status': 'Temporary annotation cleared'}, status=status.HTTP_200_OK)
-        except Annotation.DoesNotExist:
-            return Response({'error': 'No temporary annotation found'}, status=status.HTTP_404_NOT_FOUND)
+            # Decode the base64 image
+            format, imgstr = image_data.split(';base64,') 
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name=f"annotated_{uuid.uuid4()}.{ext}")
+
+            # Save the image to the AnnotatedImage model
+            annotated_image = AnnotatedImage.objects.create(
+                chatroom=chatroom,
+                user=user,
+                image=data
+            )
+
+            return Response({'status': 'Image saved successfully.', 'image_url': annotated_image.image.url}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            print(f"Error saving annotated image: {e}")
+            return Response({'error': 'Failed to save annotated image.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

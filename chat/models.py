@@ -34,5 +34,14 @@ class Annotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_temp = models.BooleanField(default=True)  # Field to mark if the annotation is temporary
 
-    # def __str__(self):
-    #     return f"Annotation {self.id} in ChatRoom {self.chatroom.id}"
+    def __str__(self):
+        return f"Annotation {self.id} in ChatRoom {self.chatroom.id}"
+
+class AnnotatedImage(models.Model):
+    chatroom = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='annotated_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Annotated Image {self.id} for Chatroom {self.chatroom.id}"
