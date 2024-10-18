@@ -1090,7 +1090,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     const timerRef = useRef(null);
     const annotationRef = useRef(null);
     // **Selected Tool**
-    const [selectedTool, setSelectedTool] = useState('RECTANGLE'); // Default tool// Default tool
+    const [selectedTool] = useState('RECTANGLE'); // Default tool// Default tool
     const [isSaving, setIsSaving] = useState(false); // <-- Define isSaving
     const [saveSuccess, setSaveSuccess] = useState(false); // <-- Define saveSuccess
     const [saveError, setSaveError] = useState(null);
@@ -1123,74 +1123,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
         }
     }, [chatroomId]);
 
-    /**
-     * **Erase Annotation**
-     * Deletes a specific annotation both from the frontend state and the backend.
-     */
-    // const eraseAnnotation = useCallback(async (annotationToErase) => {
-    //     try {
-    //         await axios.delete(
-    //             `http://localhost:8000/chat/api/annotations/${annotationToErase.id}/`,
-    //             {
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRFToken': Cookies.get('csrftoken'),
-    //                 },
-    //                 withCredentials: true,
-    //             }
-    //         );
-    //         setAnnotations((prevAnnotations) =>
-    //             prevAnnotations.filter((ann) => ann.id !== annotationToErase.id)
-    //         );
-    //         console.log('Annotation erased successfully.');
-    //     } catch (error) {
-    //         console.error('Error erasing annotation:', error);
-    //     }
-    // }, []);
-    // const saveAnnotatedImage = async () => {
-    //     if (annotationRef.current) {
-    //         try {
-    //             const canvas = await html2canvas(annotationRef.current, {
-    //                 useCORS: true, // Enable cross-origin images if necessary
-    //                 allowTaint: true,
-    //                 backgroundColor: null, // Preserve transparency
-    //             });
-    //             const imgData = canvas.toDataURL('image/png');
-    
-    //             // Optionally, download the image
-    //             const link = document.createElement('a');
-    //             link.href = imgData;
-    //             link.download = `annotated_chatroom_${chatroomId}.png`;
-    //             document.body.appendChild(link);
-    //             link.click();
-    //             document.body.removeChild(link);
-    
-    //             console.log('Annotated image saved successfully.');
-    
-    //             // Upload the image to the backend
-    //             await axios.post(
-    //                 'http://localhost:8000/chat/api/annotated-image/save/',
-    //                 {
-    //                     image: imgData,
-    //                     chatroom_id: chatroomId,
-    //                     user_id: userId,
-    //                 },
-    //                 {
-    //                     headers: {
-    //                         'Content-Type': 'application/json',
-    //                         'X-CSRFToken': Cookies.get('csrftoken'),
-    //                     },
-    //                     withCredentials: true,
-    //                 }
-    //             );
-    
-    //             console.log('Annotated image uploaded to backend successfully.');
-    //         } catch (error) {
-    //             console.error('Error saving annotated image:', error);
-    //         }
-    //     }
-    // };
-    
+   
     /**
      * **WebSocket Setup**
      * Establishes a WebSocket connection and handles incoming messages.
@@ -1387,46 +1320,6 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
         setAnnotation(annotation);
     };
 
-    /**
-     * **Handle Annotation Submission**
-     * Saves a new annotation to the backend and updates the frontend state.
-     */
-    // const onSubmit = async (annotation) => {
-    //     const { geometry, data } = annotation;  // 'data' contains the text
-
-    //     // Prepare the annotation data to send to the backend
-    //     const annotationData = {
-    //         chatroom: chatroomId,
-    //         user: userId,
-    //         geometry, 
-    //         text: data.text,  // Ensure text is captured correctly
-    //     };
-
-    //     try {
-    //         const response = await axios.post(
-    //             'http://localhost:8000/chat/api/annotations/',
-    //             annotationData,
-    //             {
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRFToken': Cookies.get('csrftoken'),
-    //                 },
-    //                 withCredentials: true,
-    //             }
-    //         );
-
-    //         if (response.status === 201) {
-    //             console.log('Annotation saved successfully.');
-    //             // Update the annotations state with the new annotation
-    //             setAnnotations([...annotations, response.data]);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error saving annotation:', error);
-    //     }
-
-    //     // Reset the annotation value
-    //     setAnnotation({});
-    // };
     const onSubmit = async (annotation) => {
         console.log('Submitting annotation:', annotation);
         const { geometry, data } = annotation;
@@ -1490,13 +1383,13 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                 console.log('Canvas captured:', imgData);
     
                 // Trigger download
-                const link = document.createElement('a');
-                link.href = imgData;
-                link.download = `annotated_chatroom_${chatroomId}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                console.log('Image download triggered');
+                // const link = document.createElement('a');
+                // link.href = imgData;
+                // link.download = `annotated_chatroom_${chatroomId}.png`;
+                // document.body.appendChild(link);
+                // link.click();
+                // document.body.removeChild(link);
+                // console.log('Image download triggered');
     
                 // Upload to backend
                 const uploadResponse = await axios.post(
@@ -1530,68 +1423,6 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     };
     
     
-
-    /**
-     * **Handle Annotation Click**
-     * Sets the selected annotation for potential deletion when in erase mode.
-     */
-    // const handleAnnotationClick = (annotation, event) => {
-    //     console.log('Annotation clicked:', annotation);
-    //     if (selectedTool === 'ERASE') {
-    //         setSelectedAnnotation(annotation);
-    //     }
-    // };
-    // const handleAnnotationClick = (annotation, event) => {
-    //     console.log('Annotation clicked:', annotation);
-    //     if (selectedTool === 'ERASE') {
-    //         // Confirm deletion
-    //         const confirmDelete = window.confirm('Do you want to delete this annotation?');
-    //         if (confirmDelete) {
-    //             eraseAnnotation(annotation);
-    //         }
-    //     }
-    // };
-    
-    /**
-     * **Effect to Handle Annotation Deletion Confirmation**
-     * Prompts the user to confirm deletion when an annotation is selected in erase mode.
-     */
-    // useEffect(() => {
-    //     if (selectedAnnotation && selectedTool === 'erase') {
-    //         const confirmDelete = window.confirm('Do you want to delete this annotation?');
-    //         if (confirmDelete) {
-    //             eraseAnnotation(selectedAnnotation);
-    //             setSelectedAnnotation(null);
-    //         } else {
-    //             setSelectedAnnotation(null);
-    //         }
-    //     }
-    // }, [selectedAnnotation, selectedTool, eraseAnnotation]);
-
-    /**
-     * **Clear All Annotations**
-     * Deletes all annotations for the current chatroom from the backend and clears the frontend state.
-     */
-    // const clearAnnotations = async () => {
-    //     try {
-    //         await axios.delete(
-    //             `http://localhost:8000/chat/api/annotations/clear/?chatroom_id=${chatroomId}`,
-    //             {
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRFToken': Cookies.get('csrftoken'),
-    //                 },
-    //                 withCredentials: true,
-    //             }
-    //         );
-    
-    //         setAnnotations([]);
-    //         console.log('All annotations cleared successfully.');
-    //     } catch (error) {
-    //         console.error('Error clearing annotations:', error);
-    //     }
-    // };
-    
     
     return (
         <div className="chatroom-container">
@@ -1609,12 +1440,12 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
 
 
         <div className="annotation-tools">
-            <button
+            {/* <button
                 onClick={() => setSelectedTool('RECTANGLE')}
                 className={selectedTool === 'RECTANGLE' ? 'active' : ''}
             >
                 Rectangle
-            </button>
+            </button>  */}
             
            <button
                             onClick={saveAnnotatedImage}
