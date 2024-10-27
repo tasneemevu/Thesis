@@ -37,7 +37,13 @@ function App() {
                     chatroomId ? (
                         <ChatRoom {...props} chatroomId={chatroomId} userId={userId} username={username} message={message} language={language} />
                     ) : (
-                        <div>
+                        <div><div className='annotation-section'>Hello! Welcome to the task. Read the instructions carefully below:
+                        <br></br>
+                        This task is about annotation of images. You will be provided with an image that you need to annotate using the Rectangle tool.<br></br>
+                        You have to place the cursor on the image and drag it to create a rectangle around the object in the image.<br></br>
+                        Once you have created the rectangle, you will be prompted to enter a text description for the annotation.<br></br>
+                        Click on the Save Annotated Image button to save the annotated image.<br></br><br></br></div>
+                            <div className="language-selection-container">
                             <h2>Select Your Preferred Language</h2>
                             <select value={language} onChange={(e) => setLanguage(e.target.value)}>
                                 <option value="">Select Language</option>
@@ -52,8 +58,8 @@ function App() {
                                 <option value="de">German</option>
                                 <option value="pt">Portuguese</option>
                             </select>
-                            <button onClick={fetchChatroom} disabled={!language}>Join Chatroom</button>
-                        </div>
+                            <button onClick={fetchChatroom} disabled={!language} className="join-button">Join Chatroom</button>
+                        </div></div>
                     )
                 )} />
                 <Redirect to="/chatroom" />

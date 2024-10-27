@@ -480,6 +480,7 @@ from google.cloud import translate_v2 as translate
 import os
 import asyncio
 from openai import OpenAI
+from google.oauth2 import service_account
 
 # Set up OpenAI API key
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -487,11 +488,26 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # Set Google Translate API credentials
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "D:/thesis/coastal-idea-435113-d0-aa8b6c590c5e.json"
 
+def get_credentials(service_account_file):
+    credentials = service_account.Credentials.from_service_account_file(
+        service_account_file,
+        scopes=['https://www.googleapis.com/auth/cloud-platform']
+    )
+    return credentials
+
 class ChatConsumer(AsyncWebsocketConsumer):
     def translate_message(self, message, target_language):
-        translate_client = translate.Client()
+        service_account_file = 'D:/thesis/coastal-idea-435113-d0-aa8b6c590c5e.json'
+        
+        # Get credentials
+        credentials = get_credentials(service_account_file)
+        
+        # Initialize the translation client with the credentials
+        translate_client = translate.Client(credentials=credentials)
+        
         result = translate_client.translate(message, target_language=target_language)
         return result['translatedText']
+    
     
     async def connect(self):
         self.room_id = self.scope['url_route']['kwargs']['room_id']

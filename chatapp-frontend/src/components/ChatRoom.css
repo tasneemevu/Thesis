@@ -1,7 +1,7 @@
 /* src/components/ChatRoom.css */
 
-.chatroom-container {
-    max-width: 800px;
+/* .chatroom-container {
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -9,6 +9,19 @@
     background-color: #f9f9f9;
 }
 
+.task-instructions {
+    width:80%;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+}
+.chat-section{
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    padding: 20px;
+}
 .annotation-tools {
     display: flex;
     gap: 10px;
@@ -73,4 +86,391 @@
     background-color: #cccccc;
     cursor: not-allowed;
 }
+ */
+/* .chatroom-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
 
+.task-instructions {
+    width: 80%;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+}
+
+.chat-section {
+    display: flex;
+    flex-direction: column; 
+}
+
+.annotation-tools {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.annotation-tools button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    transition: background-color 0.3s;
+}
+
+.annotation-tools button.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.annotation-tools button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.messages-list {
+    list-style-type: none;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    flex-grow: 1; 
+}
+
+.messages-list li {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.chatbar {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px; 
+}
+.chatbar input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.chatbar button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+
+.chatbar button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+} */
+
+.chatroom-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+.task-instructions {
+    flex: 1;
+    width: 70%;
+    padding: 10px;
+}
+
+/* .chat-section {
+    flex: 2;
+    width: 30%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-window {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    max-height: 500px; 
+} */
+ /* Set up a container box for the chat */
+.chat-section {
+    width: 80%; /* Adjust as needed */
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1em;
+    background-color: #e3edf1;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Style the chat window box */
+/* Chat window container styles */
+.chat-window {
+    display: flex;
+    flex-direction: column;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 1em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+/* Individual message container */
+.message-container {
+    display: flex;
+    margin-bottom: 0.5em;
+}
+
+/* Alignment for self and other messages */
+.message-container.self {
+    justify-content: flex-end;
+}
+
+.message-container.other {
+    justify-content: flex-start;
+}
+
+/* Style individual messages */
+.chat-message {
+    display: inline-block;
+    padding: 0.5em 1em;
+    border-radius: 16px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+/* Colors for messages */
+.chat-message.self {
+    background-color: #cceaf7;
+    color: #333;
+}
+
+.chat-message.other {
+    background-color: #ECF0F1;
+    color: #333;
+}
+
+
+/* Chat input bar styling */
+.chatbar {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.chatbar input[type="text"] {
+    flex: 1;
+    padding: 0.5em;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.chatbar button {
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.chatbar button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Scrollbar styling (optional, for Webkit browsers) */
+.chat-window::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 8px;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 8px;
+}
+
+.chat-window::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+.message-input {
+    display: flex;
+    align-items: center;
+}
+
+.message-input input {
+    flex: 1;
+    padding: 10px;
+    margin-right: 10px;
+}
+
+.message-input button {
+    padding: 10px 20px;
+}
+
+/* .annotation-section {
+    position: relative;
+} */
+ /* Annotation Section Styling */
+.annotation-section {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 1.5em;
+    border-radius: 10px;
+    background-color: #f0f8ff; /* Light blue background */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    font-size: 1em;
+    color: #333;
+    line-height: 1.6;
+}
+
+.annotation-section strong {
+    font-size: 1.1em;
+    font-weight: bold;
+    display: block;
+    margin-top: 1em;
+}
+.second-user-instructions {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 1.5em;
+    border-radius: 10px;
+    background-color: #f0f8ff; /* Light blue background */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    font-size: 1em;
+    color: #333;
+    line-height: 1.6;
+    
+}
+.second-user-instructions strong {
+    font-size: 1.1em;
+    font-weight: bold;
+    display: block;
+    margin-top: 1em;
+}
+.second-user-instructions img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1em 0; /* Adds space around the image */
+    border-radius: 8px; /* Optional: rounds the image corners */
+}
+
+.annotation-tools {
+    margin-bottom: 10px;
+}
+
+.success-message {
+    color: green;
+}
+
+.error-message {
+    color: red;
+}
+
+.chat-message {
+    margin-bottom: 5px;
+}
+
+.chat-message.self {
+    text-align: right;
+}
+
+.chat-message.other {
+    text-align: left;
+}
+.side-bar {
+    width: 296px;
+    /* height: 4894px; */
+    font-family: Hahmlet, serif;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 18px;
+    letter-spacing: 0.1599999964237213px;
+    text-align: left;
+    width: Hug (221px);
+    height: Hug (424px);
+    top: 167px;
+    left: 38px;
+    padding: 5px;
+    gap: 8px;
+
+
+}
+.side-bar1
+{
+    margin-left:40px ;
+}
+
+.language-selection-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 50vh; /* Centers it vertically in full viewport height */
+    text-align: center;
+}
+
+.language-selection-container h2 {
+    margin-bottom: 1em;
+    color: #333;
+}
+
+.language-selection-container select {
+    padding: 0.5em;
+    font-size: 1em;
+    margin-bottom: 1em;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 200px; /* Optional: Set width for select box */
+    text-align: center;
+}
+
+.join-button {
+    padding: 0.5em 1em;
+    background-color: #007bff; /* Blue background */
+    color: #fff;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.join-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.join-button:disabled {
+    background-color: #ccc; /* Gray color when disabled */
+    cursor: not-allowed;
+}

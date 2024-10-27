@@ -113,7 +113,7 @@ def assign_chatroom(request):
                     available_room.user2_language = selected_language  # Store language for ChatGPT
                     available_room.chat_completed = True  # Mark the chatroom as completed
                     available_room.save()
-                    message = "You have been connected to ChatGPT. Start your conversation."
+                    message = "You have been connected to a user. Start your conversation."
 
             else:
                 # No available rooms; create a new room
@@ -132,9 +132,9 @@ def assign_chatroom(request):
                     chatroom.user2_language = selected_language  # Store language for ChatGPT
                     chatroom.chat_completed = True  # Mark the chatroom as completed
                     chatroom.save()
-                    message = "You have been connected to ChatGPT. Start your conversation."
+                    message = "You have been connected to a user. Start your conversation."
                 else:
-                    message = "Please wait for another person to join the chatroom."
+                    message = "Please wait for another person to join the chatroom. It will not take more than 2 minutes."
 
         return JsonResponse({
             'chatroom_id': available_room.id if available_room else chatroom.id,
@@ -145,27 +145,27 @@ def assign_chatroom(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-def leave_chatroom(request):
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        chatroom_id = request.POST.get('chatroom_id')
+# def leave_chatroom(request):
+#     if request.method == 'POST':
+#         user_id = request.POST.get('user_id')
+#         chatroom_id = request.POST.get('chatroom_id')
 
-        user = get_object_or_404(User, id=user_id)
-        chatroom = get_object_or_404(ChatRoom, id=chatroom_id)
+#         user = get_object_or_404(User, id=user_id)
+#         chatroom = get_object_or_404(ChatRoom, id=chatroom_id)
 
-        if chatroom.user1 == user:
-            chatroom.user1 = None
-        elif chatroom.user2 == user:
-            chatroom.user2 = None
-        chatroom.save()
+#         if chatroom.user1 == user:
+#             chatroom.user1 = None
+#         elif chatroom.user2 == user:
+#             chatroom.user2 = None
+#         chatroom.save()
 
-        if chatroom.user1 is None and chatroom.user2 is None:
-            chatroom.delete()
+#         if chatroom.user1 is None and chatroom.user2 is None:
+#             chatroom.delete()
 
-        user.delete()
-        return JsonResponse({'status': 'left'})
+#         user.delete()
+#         return JsonResponse({'status': 'left'})
     
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+#     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 #annotation
 

@@ -1066,6 +1066,7 @@ import Cookies from 'js-cookie';
 import Annotation from 'react-image-annotation';
 import './ChatRoom.css'; // Ensure you have the necessary styles
 import html2canvas from 'html2canvas';
+import crypto from 'crypto';
 
 function ChatRoom({ chatroomId, userId, username, message, language }) {
     // **State Variables**
@@ -1094,6 +1095,15 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     const [isSaving, setIsSaving] = useState(false); // <-- Define isSaving
     const [saveSuccess, setSaveSuccess] = useState(false); // <-- Define saveSuccess
     const [saveError, setSaveError] = useState(null);
+    const [annotationCount, setAnnotationCount] = useState(0);
+    const [paymentCode, setPaymentCode] = useState(null);
+
+    const generateSHA256Code = (userId, chatroomId) => {
+        const timestamp = new Date().toISOString(); // Use timestamp for added uniqueness
+        const uniqueString = `${userId}-${chatroomId}-${timestamp}`;
+        
+        return crypto.createHash('sha256').update(uniqueString).digest('hex');
+    };
     /**
      * **Load Annotations**
      * Fetches existing annotations from the backend for the current chatroom.
@@ -1287,29 +1297,29 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
      * **Leave Chatroom**
      * Allows the user to leave the chatroom by notifying the backend.
      */
-    const leaveChatroom = async () => {
-        try {
-            const csrfToken = Cookies.get('csrftoken');
+    // const leaveChatroom = async () => {
+    //     try {
+    //         const csrfToken = Cookies.get('csrftoken');
 
-            await axios.post(
-                'http://localhost:8000/chat/leave-chatroom/',
-                {
-                    user_id: userId,
-                    chatroom_id: chatroomId
-                },
-                {
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                    },
-                    withCredentials: true,
-                }
-            );
-            console.log('Left the chatroom successfully.');
-            // Optionally, redirect the user or update the UI accordingly
-        } catch (error) {
-            console.error('Error leaving chatroom:', error);
-        }
-    };
+    //         await axios.post(
+    //             'http://localhost:8000/chat/leave-chatroom/',
+    //             {
+    //                 user_id: userId,
+    //                 chatroom_id: chatroomId
+    //             },
+    //             {
+    //                 headers: {
+    //                     'X-CSRFToken': csrfToken,
+    //                 },
+    //                 withCredentials: true,
+    //             }
+    //         );
+    //         console.log('Left the chatroom successfully.');
+    //         // Optionally, redirect the user or update the UI accordingly
+    //     } catch (error) {
+    //         console.error('Error leaving chatroom:', error);
+    //     }
+    // };
 
     /**
      * **Handle Annotation Change**
@@ -1360,6 +1370,16 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                     data: { text: response.data.text },
                     id: response.data.id,
                 }]);
+                const newCount = annotationCount + 1;
+                setAnnotationCount(newCount);
+    
+                // Display SHA-256 payment code on 5th annotation submission
+                if (newCount === 5) {
+                    const shaCode = generateSHA256Code(userId, chatroomId); // Generate unique SHA-256 code
+                    setPaymentCode(shaCode);
+                    alert(`Congratulations! Your payment code is: ${shaCode}`);
+                }
+            
             }
         } catch (error) {
             console.error('Error saving annotation:', error);
@@ -1427,34 +1447,42 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     return (
         <div className="chatroom-container">
             <h1>Chat Room: {chatroomId}</h1>
-            <p>{message}</p>
+            {/* <p>{message}</p> */}
+        <div className="task-instructions">
+               
+            
 
             {/* **Annotation Tools and Instructions** */}
             {(userRole === 'first' || (userRole === 'second' && isChatGPT)) && (
                 <div id="annotation-section" className="annotation-section" ref={annotationRef}>
-                    <h2>Welcome to the Chat!</h2>
-                    <p>Here are some instructions to get you started:</p>
+                    {/* <h2>Welcome to the Chat!</h2> */}
+                    <p>
+                        {/* Hello! Welcome to the task. Read the instructions carefully below:
+                    <br></br> */}
+                    {/* This task is about annotation of images. You will be provided with an image that you need to annotate using the Rectangle tool.<br></br>
+                    You have to place the cursor on the image and drag it to create a rectangle around the object in the image.<br></br>
+                    Once you have created the rectangle, you will be prompted to enter a text description for the annotation.<br></br>
+                    Click on the Save Annotated Image button to save the annotated image.<br></br><br></br>
+                     */}
+                    <strong>Chat Instructions</strong><br></br>
+                    Use the chat window to communicate with the other user.<br></br>
+                    The user connected to you will help you with the task.<br></br>
+                    You can also use the chat window to ask questions or seek clarifications.<br></br>
+                    The other user will tell you which things you need to annotate in the image.<br></br>
+                    Remember to save the annotated image once you have completed the task.<br></br>
+                    There are total three questions in this task.<br></br>
+                    Only when you submit the annotations of the three questions, the task will be completed and payment code will be revealed.<br></br>
+
+                    Let's get started! Ask questions in your chosen language in the chatbox below about the task.<br></br>
+
+
+
+
+
+                    </p>
                     
                     {/* Annotation Tool Buttons */}
 
-
-
-        <div className="annotation-tools">
-            {/* <button
-                onClick={() => setSelectedTool('RECTANGLE')}
-                className={selectedTool === 'RECTANGLE' ? 'active' : ''}
-            >
-                Rectangle
-            </button>  */}
-            
-           <button
-                            onClick={saveAnnotatedImage}
-                            disabled={annotations.length === 0 || isSaving}
-                        >
-                            {isSaving ? 'Saving...' : 'Save Annotated Image'}
-                        </button>
-
-            </div>
 
         <Annotation
             src="/images/taskimg1.jpg" // Ensure this path is correct
@@ -1466,11 +1494,40 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
             onSubmit={onSubmit}
              // Handle clicks for erase
         />
-                    <p>Use the Rectangle tool above to annotate the image as needed.</p>
+                    {/* <p>Use the Rectangle tool above to annotate the image as needed.</p>
                     {/* **Feedback Messages** */}
-                    {saveSuccess && <p style={{ color: 'green' }}>Annotated image saved successfully!</p>}
-                    {saveError && <p style={{ color: 'red' }}>{saveError}</p>}
+                    {/* {saveSuccess && <p style={{ color: 'green' }}>Annotated image saved successfully!</p>}
+                    {saveError && <p style={{ color: 'red' }}>{saveError}</p>} */} 
+                
+
+            
+                    <div className="annotation-tools">
+                    {/* <button
+                        onClick={() => setSelectedTool('RECTANGLE')}
+                        className={selectedTool === 'RECTANGLE' ? 'active' : ''}
+                    >
+                        Rectangle
+                    </button>  */}
+                    
+                <button
+                                    onClick={saveAnnotatedImage}
+                                    disabled={annotations.length === 0 || isSaving}
+                                >
+                                    {isSaving ? 'Saving...' : 'Save Annotated Image'}
+                                </button>
+                                <p>Use the Rectangle tool above to annotate the image as needed.</p>
+                            {/* **Feedback Messages** */}
+                            {saveSuccess && <p style={{ color: 'green' }}>Annotated image saved successfully!</p>}
+                            {saveError && <p style={{ color: 'red' }}>{saveError}</p>}
+                    
+                    </div>
+                    {paymentCode && (
+                    <div className="payment-code">
+                        <p>Your Payment Code: <strong>{paymentCode}</strong></p>
+                    </div>
+                )}
                 </div>
+
             )}
 
             {/* **Instructions for Second User (Non-ChatGPT)** */}
@@ -1482,27 +1539,35 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                     {/* Add more instructional content as needed */}
                 </div>
             )}
-
+            </div>
+            <div className="chat-section">
+            <p>{message}</p>
+            <div className="chat-window">
             {/* **Messages List** */}
-            <ul className="messages-list">
-                {messages.map((msg, index) => (
-                    <li key={index}>
-                        <strong>{msg.username}: </strong>{msg.message}
-                    </li>
-                ))}
-            </ul>
 
+            {messages.map((msg, index) => (
+                         <div key={index} className={`message-container ${msg.username === username ? 'self' : 'other'}`}>
+                         <div className={`chat-message ${msg.username === username ? 'self' : 'other'}`}>
+                            <strong>{msg.username}: </strong>
+                            <span>{msg.message}</span>
+                        </div>
+                        </div>
+                    ))}
+            
+            </div>
             {/* **Chat Input and Controls** */}
             <div className="chatbar">
                 <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                     placeholder="Type a message..."
                     disabled={!canType}
                 />
                 <button onClick={sendMessage} disabled={!canType}>Send</button>
-                <button onClick={leaveChatroom}>Leave</button>
+                {/* <button onClick={leaveChatroom}>Leave</button> */}
+            </div>
             </div>
         </div>
     );
