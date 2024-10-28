@@ -1066,7 +1066,7 @@ import Cookies from 'js-cookie';
 import Annotation from 'react-image-annotation';
 import './ChatRoom.css'; // Ensure you have the necessary styles
 import html2canvas from 'html2canvas';
-import crypto from 'crypto';
+// import crypto from 'crypto';
 
 function ChatRoom({ chatroomId, userId, username, message, language }) {
     // **State Variables**
@@ -1098,16 +1098,31 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     const [annotationCount, setAnnotationCount] = useState(0);
     const [paymentCode, setPaymentCode] = useState(null);
 
-    const generateSHA256Code = (userId, chatroomId) => {
-        const timestamp = new Date().toISOString(); // Use timestamp for added uniqueness
-        const uniqueString = `${userId}-${chatroomId}-${timestamp}`;
+    const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false); // Disable until 5 annotations are done
+    const [copySuccess, setCopySuccess] = useState(false);
+
+
+    // const generateSHA256Code = (userId, chatroomId) => {
+    //     const timestamp = new Date().toISOString(); // Use timestamp for added uniqueness
+    //     const uniqueString = `${userId}-${chatroomId}-${timestamp}`;
         
-        return crypto.createHash('sha256').update(uniqueString).digest('hex');
-    };
+    //     return crypto.createHash('sha256').update(uniqueString).digest('hex');
+    // };
     /**
      * **Load Annotations**
      * Fetches existing annotations from the backend for the current chatroom.
      */
+    const handleCopyCode = () => {
+        if (paymentCode) {
+            navigator.clipboard.writeText(paymentCode)
+                .then(() => {
+                    setCopySuccess(true);
+                    setTimeout(() => setCopySuccess(false), 2000); // Hide message after 2 seconds
+                })
+                .catch((err) => console.error('Failed to copy:', err));
+        }
+    };
+    
     const loadAnnotations = useCallback(async () => {
         try {
             const response = await axios.get(
@@ -1373,13 +1388,10 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                 const newCount = annotationCount + 1;
                 setAnnotationCount(newCount);
     
-                // Display SHA-256 payment code on 5th annotation submission
+                // Enable save button when 5 annotations are done
                 if (newCount === 5) {
-                    const shaCode = generateSHA256Code(userId, chatroomId); // Generate unique SHA-256 code
-                    setPaymentCode(shaCode);
-                    alert(`Congratulations! Your payment code is: ${shaCode}`);
+                    setIsSaveButtonEnabled(true);
                 }
-            
             }
         } catch (error) {
             console.error('Error saving annotation:', error);
@@ -1432,7 +1444,9 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     
                 setIsSaving(false); // Reset saving state
                 setSaveSuccess(true); // Indicate success
-                setTimeout(() => setSaveSuccess(false), 3000); // Hide success message after 3 seconds
+                setPaymentCode(uploadResponse.data.payment_code);
+
+                setTimeout(() => setSaveSuccess(false), 3000); // Hide success message
             } catch (error) {
                 console.error('Error saving annotated image:', error);
                 setIsSaving(false); // Reset saving state
@@ -1501,31 +1515,29 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                 
 
             
-                    <div className="annotation-tools">
-                    {/* <button
-                        onClick={() => setSelectedTool('RECTANGLE')}
-                        className={selectedTool === 'RECTANGLE' ? 'active' : ''}
-                    >
-                        Rectangle
-                    </button>  */}
-                    
+                <div className="annotation-tools">
                 <button
-                                    onClick={saveAnnotatedImage}
-                                    disabled={annotations.length === 0 || isSaving}
-                                >
-                                    {isSaving ? 'Saving...' : 'Save Annotated Image'}
-                                </button>
-                                <p>Use the Rectangle tool above to annotate the image as needed.</p>
-                            {/* **Feedback Messages** */}
-                            {saveSuccess && <p style={{ color: 'green' }}>Annotated image saved successfully!</p>}
-                            {saveError && <p style={{ color: 'red' }}>{saveError}</p>}
-                    
+                    onClick={saveAnnotatedImage}
+                    disabled={!isSaveButtonEnabled || isSaving} // Only enabled after 5 annotations
+                >
+                    {isSaving ? 'Saving...' : 'Save Annotated Image'}
+                </button>
+                <p>Use the Rectangle tool above to annotate the image as needed.</p>
+                {saveSuccess && <p style={{ color: 'green' }}>Annotated image saved successfully!</p>}
+                {saveError && <p style={{ color: 'red' }}>{saveError}</p>}
+            </div>
+
+            {paymentCode && (
+                <div className="payment-code-container">
+                    <p>Your Payment Code:</p>
+                    <div className="payment-code-box">
+                        <span>{paymentCode}</span>
+                        <button onClick={handleCopyCode} className="copy-button">Copy</button>
                     </div>
-                    {paymentCode && (
-                    <div className="payment-code">
-                        <p>Your Payment Code: <strong>{paymentCode}</strong></p>
-                    </div>
-                )}
+                    {copySuccess && <p className="copy-success">Copied to clipboard!</p>}
+                </div>
+            )}
+                
                 </div>
 
             )}

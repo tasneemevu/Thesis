@@ -75,6 +75,11 @@ from rest_framework.views import APIView
 import base64
 import uuid
 from django.core.files.base import ContentFile
+from django.utils.crypto import get_random_string
+from django.utils.crypto import get_random_string
+import hashlib
+from django.utils import timezone
+
 
 
 
@@ -294,8 +299,18 @@ class SaveAnnotatedImageView(APIView):
                 user=user,
                 image=data
             )
+            if not chatroom.payment_code:
+                unique_string = f"{user_id}-{chatroom_id}-{timezone.now()}"
+                payment_code = hashlib.sha256(unique_string.encode()).hexdigest()  # Use hashlib to generate SHA-256
+                chatroom.payment_code = payment_code  # Save code in chatroom
+                chatroom.save()
 
-            return Response({'status': 'Image saved successfully.', 'image_url': annotated_image.image.url}, status=status.HTTP_201_CREATED)
+            return Response({
+                'status': 'Image saved successfully.',
+                'image_url': annotated_image.image.url,
+                'payment_code': chatroom.payment_code  # Send payment code to frontend
+            }, status=status.HTTP_201_CREATED)
+            # return Response({'status': 'Image saved successfully.', 'image_url': annotated_image.image.url}, status=status.HTTP_201_CREATED)
         except Exception as e:
             print(f"Error saving annotated image: {e}")
             return Response({'error': 'Failed to save annotated image.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

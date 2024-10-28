@@ -9,6 +9,7 @@ class ChatRoom(models.Model):
     user2 = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='chatroom_user2')
     user2_language = models.CharField(max_length=10, default='en')  # Store user2's language preference
     task_state = models.CharField(max_length=20, default='start')
+    payment_code = models.CharField(max_length=64, null=True, blank=True)  # New field to store SHA-256 payment code
 
 class Message(models.Model):
     chatroom = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name='messages')
