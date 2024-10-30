@@ -39,10 +39,12 @@ function App() {
                     ) : (
                         <div><div className='annotation-section'>Hello! Welcome to the task. Read the instructions carefully below:
                         <br></br>
-                        This task is about annotation of images. You will be provided with an image that you need to annotate using the Rectangle tool.<br></br>
-                        You have to place the cursor on the image and drag it to create a rectangle around the object in the image.<br></br>
-                        Once you have created the rectangle, you will be prompted to enter a text description for the annotation.<br></br>
-                        Click on the Save Annotated Image button to save the annotated image.<br></br><br></br></div>
+                        This task is about annotation of images with the help of an instructor<br></br>
+                        You can be either a performer or an instructor. You can see it after joining the chatroom<br></br>
+                        Please select your Native language. If there is no native language of yours, select the language which you can write, read and understand.<br></br>
+                        Because you have to perform/ instruct the task while interacting with the instructor/performer. <br></br>
+                        Once you select the language, you will be redirected to a chatroom. Have fun with the task.<br></br>
+                        </div>
                             <div className="language-selection-container">
                             <h2>Select Your Preferred Language</h2>
                             <select value={language} onChange={(e) => setLanguage(e.target.value)}>

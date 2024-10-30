@@ -347,7 +347,10 @@ h1 {
     background-color: #f0f8ff; /* Light blue background */
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #e0e0e0;
-    font-size: 1em;
+    font-family: Roboto;
+    letter-spacing: 0.10000000149011612px;
+    text-align: center;
+font-size: 18px;
     color: #333;
     line-height: 1.6;
 }
@@ -366,7 +369,10 @@ h1 {
     background-color: #f0f8ff; /* Light blue background */
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #e0e0e0;
-    font-size: 1em;
+    font-family: Roboto;
+    letter-spacing: 0.10000000149011612px;
+    text-align: center;
+font-size: 18px;
     color: #333;
     line-height: 1.6;
     
@@ -382,7 +388,7 @@ h1 {
     height: auto;
     display: block;
     margin: 1em 0; /* Adds space around the image */
-    border-radius: 8px; /* Optional: rounds the image corners */
+    border-radius: 8px; 
 }
 
 .annotation-tools {

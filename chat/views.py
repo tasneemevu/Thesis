@@ -269,15 +269,15 @@ class SubmitAnnotationView(APIView):
 
 #         return Response({'status': 'Image saved successfully.', 'image_url': annotated_image.image.url}, status=status.HTTP_201_CREATED)
 class SaveAnnotatedImageView(APIView):
-    permission_classes = [permissions.AllowAny]  # Adjust as necessary
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        image_data = request.data.get('image')
+        tasks = request.data.get('tasks')
         chatroom_id = request.data.get('chatroom_id')
         user_id = request.data.get('user_id')
 
-        if not image_data:
-            return Response({'error': 'No image data provided.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not tasks:
+            return Response({'error': 'No task data provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = User.objects.get(id=user_id)
@@ -288,29 +288,40 @@ class SaveAnnotatedImageView(APIView):
             return Response({'error': 'ChatRoom not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         try:
-            # Decode the base64 image
-            format, imgstr = image_data.split(';base64,') 
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name=f"annotated_{uuid.uuid4()}.{ext}")
+            # Loop through tasks to save each annotated image and annotations
+            for task in tasks:
+                img_data = task['imgData']
+                format, imgstr = img_data.split(';base64,') 
+                ext = format.split('/')[-1]
+                data = ContentFile(base64.b64decode(imgstr), name=f"annotated_task_{task['task']}_{uuid.uuid4()}.{ext}")
 
-            # Save the image to the AnnotatedImage model
-            annotated_image = AnnotatedImage.objects.create(
-                chatroom=chatroom,
-                user=user,
-                image=data
-            )
+                annotated_image = AnnotatedImage.objects.create(
+                    chatroom=chatroom,
+                    user=user,
+                    image=data
+                )
+
+                # Save annotations for the task
+                for annot in task['annotations']:
+                    Annotation.objects.create(
+                        chatroom=chatroom,
+                        user=user,
+                        geometry=annot['geometry'],
+                        text=annot['data']['text']
+                    )
+
+            # Generate SHA-256 payment code if not already generated
             if not chatroom.payment_code:
                 unique_string = f"{user_id}-{chatroom_id}-{timezone.now()}"
-                payment_code = hashlib.sha256(unique_string.encode()).hexdigest()  # Use hashlib to generate SHA-256
-                chatroom.payment_code = payment_code  # Save code in chatroom
+                payment_code = hashlib.sha256(unique_string.encode()).hexdigest()
+                chatroom.payment_code = payment_code
                 chatroom.save()
 
             return Response({
-                'status': 'Image saved successfully.',
-                'image_url': annotated_image.image.url,
-                'payment_code': chatroom.payment_code  # Send payment code to frontend
+                'status': 'All annotated images saved successfully.',
+                'payment_code': chatroom.payment_code
             }, status=status.HTTP_201_CREATED)
-            # return Response({'status': 'Image saved successfully.', 'image_url': annotated_image.image.url}, status=status.HTTP_201_CREATED)
+
         except Exception as e:
             print(f"Error saving annotated image: {e}")
             return Response({'error': 'Failed to save annotated image.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1067,7 +1067,11 @@ import Annotation from 'react-image-annotation';
 import './ChatRoom.css'; // Ensure you have the necessary styles
 import html2canvas from 'html2canvas';
 // import crypto from 'crypto';
-
+const images = [
+    '/images/taskimg1.jpg',  // Image for Task 1
+    '/images/taskimg1.jpg',  // Image for Task 2
+    '/images/taskimg1.jpg'   // Image for Task 3
+];
 function ChatRoom({ chatroomId, userId, username, message, language }) {
     // **State Variables**
     const [messages, setMessages] = useState([]);
@@ -1082,24 +1086,22 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     // **Annotations State**
     const [annotation, setAnnotation] = useState({});
     const [annotations, setAnnotations] = useState([]);
-    
-    
-   
-
+    const [taskIndex, setTaskIndex] = useState(0);
     // **Refs**
     const userRoleRef = useRef(null);
     const timerRef = useRef(null);
     const annotationRef = useRef(null);
     // **Selected Tool**
-    const [selectedTool] = useState('RECTANGLE'); // Default tool// Default tool
+    // const [selectedTool] = useState('RECTANGLE'); // Default tool// Default tool
     const [isSaving, setIsSaving] = useState(false); // <-- Define isSaving
     const [saveSuccess, setSaveSuccess] = useState(false); // <-- Define saveSuccess
     const [saveError, setSaveError] = useState(null);
     const [annotationCount, setAnnotationCount] = useState(0);
     const [paymentCode, setPaymentCode] = useState(null);
 
-    const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false); // Disable until 5 annotations are done
+    // const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false); // Disable until 5 annotations are done
     const [copySuccess, setCopySuccess] = useState(false);
+    const [taskAnnotations, setTaskAnnotations] = useState([]); // Store annotations for each task
 
 
     // const generateSHA256Code = (userId, chatroomId) => {
@@ -1112,6 +1114,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
      * **Load Annotations**
      * Fetches existing annotations from the backend for the current chatroom.
      */
+    const taskRequirements = [1, 4, 5];
     const handleCopyCode = () => {
         if (paymentCode) {
             navigator.clipboard.writeText(paymentCode)
@@ -1346,10 +1349,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     };
 
     const onSubmit = async (annotation) => {
-        console.log('Submitting annotation:', annotation);
         const { geometry, data } = annotation;
-    
-        // Prompt the user to enter text for the annotation
         const annotationText = prompt('Enter annotation text:', data.text || '');
     
         if (!annotationText) {
@@ -1360,103 +1360,129 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
         const annotationData = {
             chatroom: chatroomId,
             user: userId,
-            geometry, 
-            text: annotationText,  // Use the entered text
+            geometry,
+            text: annotationText,
         };
     
         try {
+            // Assign the result of axios to response directly
             const response = await axios.post(
                 'http://localhost:8000/chat/api/annotations/',
                 annotationData,
                 {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': Cookies.get('csrftoken'),
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Cookies.get('csrftoken') },
                     withCredentials: true,
                 }
             );
     
+            // Check response exists and status is correct
             if (response.status === 201) {
-                console.log('Annotation saved successfully.');
-                // Update the annotations state with the new annotation
                 setAnnotations([...annotations, {
                     geometry: response.data.geometry,
                     data: { text: response.data.text },
                     id: response.data.id,
                 }]);
-                const newCount = annotationCount + 1;
-                setAnnotationCount(newCount);
-    
-                // Enable save button when 5 annotations are done
-                if (newCount === 5) {
-                    setIsSaveButtonEnabled(true);
-                }
+                setAnnotationCount(annotationCount + 1);
             }
         } catch (error) {
             console.error('Error saving annotation:', error);
         }
-        // Reset the annotation value
         setAnnotation({});
     };
-    const saveAnnotatedImage = async () => {
-        if (annotationRef.current) {
-            try {
-                console.log('Starting saveAnnotatedImage function');
-                setIsSaving(true); // Set saving state to true
     
-                const canvas = await html2canvas(annotationRef.current, {
-                    useCORS: true, // Enable cross-origin images if necessary
-                    allowTaint: true,
-                    backgroundColor: null, // Preserve transparency
-                });
-    
-                const imgData = canvas.toDataURL('image/png');
-                console.log('Canvas captured:', imgData);
-    
-                // Trigger download
-                // const link = document.createElement('a');
-                // link.href = imgData;
-                // link.download = `annotated_chatroom_${chatroomId}.png`;
-                // document.body.appendChild(link);
-                // link.click();
-                // document.body.removeChild(link);
-                // console.log('Image download triggered');
-    
-                // Upload to backend
-                const uploadResponse = await axios.post(
-                    'http://localhost:8000/chat/api/annotated-image/save/',
-                    {
-                        image: imgData,
-                        chatroom_id: chatroomId,
-                        user_id: userId,
-                    },
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': Cookies.get('csrftoken'),
-                        },
-                        withCredentials: true,
-                    }
-                );
-    
-                console.log('Upload response:', uploadResponse.data);
-    
-                setIsSaving(false); // Reset saving state
-                setSaveSuccess(true); // Indicate success
-                setPaymentCode(uploadResponse.data.payment_code);
 
-                setTimeout(() => setSaveSuccess(false), 3000); // Hide success message
-            } catch (error) {
-                console.error('Error saving annotated image:', error);
-                setIsSaving(false); // Reset saving state
-                setSaveError('Failed to save annotated image.'); // Set error message
-                setTimeout(() => setSaveError(null), 3000); // Hide error message after 3 seconds
-            }
+    const handleNextTask = async () => {
+        try {
+            const canvas = await html2canvas(document.querySelector('#annotation-section'), { useCORS: true, allowTaint: true });
+            const imgData = canvas.toDataURL('image/png');
+            setTaskAnnotations([...taskAnnotations, { task: taskIndex + 1, imgData, annotations }]);
+            setTaskIndex(taskIndex + 1);
+            setAnnotationCount(0);
+            setAnnotations([]);
+        } catch (error) {
+            console.error('Error capturing task annotation:', error);
         }
     };
+
+    // const saveAnnotatedImage = async () => {
+    //     setIsSaving(true);  // Set to true at start of save
+    //     try {
+    //         const response = await axios.post(
+    //             'http://localhost:8000/chat/api/annotated-image/save/',
+    //             {
+    //                 chatroom_id: chatroomId,
+    //                 user_id: userId,
+    //                 tasks: taskAnnotations,
+    //             },
+    //             {
+    //                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Cookies.get('csrftoken') },
+    //                 withCredentials: true,
+    //             }
+    //         );
     
+    //         setSaveSuccess(true);
+    //         setPaymentCode(response.data.payment_code);
+    //         setTimeout(() => setSaveSuccess(false), 3000);
+    //     } catch (error) {
+    //         console.error('Error saving annotated image:', error);
+    //         setSaveError('Failed to save annotated images.');
+    //         setTimeout(() => setSaveError(null), 3000);
+    //     }
+    //     setIsSaving(false);  // Set to false after save completes
+    // };
+    const saveAnnotatedImage = async () => {
+        setIsSaving(true);  // Start saving process
     
+        let updatedAnnotations = taskAnnotations;
+        let imgData = null;
+    
+        // Check and capture Task 3 annotations if not already captured
+        if (taskIndex === 2 && taskAnnotations.length < 3) {
+            const canvas = await html2canvas(document.querySelector('#annotation-section'), { useCORS: true, allowTaint: true });
+            imgData = canvas.toDataURL('image/png');
+    
+            // Add Task 3 annotations to `taskAnnotations`
+            updatedAnnotations = [
+                ...taskAnnotations,
+                { task: taskIndex + 1, imgData, annotations }
+            ];
+    
+            // Update state with Task 3 and wait for the state to be updated
+            await new Promise(resolve => {
+                setTaskAnnotations(updatedAnnotations);
+                setTimeout(resolve, 100); // Small delay to ensure state update
+            });
+        }
+    
+        // Use the final `taskAnnotations` including Task 3
+        try {
+            const response = await axios.post(
+                'http://localhost:8000/chat/api/annotated-image/save/',
+                {
+                    chatroom_id: chatroomId,
+                    user_id: userId,
+                    tasks: updatedAnnotations,  // Send final annotations state
+                },
+                {
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Cookies.get('csrftoken') },
+                    withCredentials: true,
+                }
+            );
+    
+            setSaveSuccess(true);
+            setPaymentCode(response.data.payment_code);
+            setTimeout(() => setSaveSuccess(false), 3000);
+        } catch (error) {
+            console.error('Error saving annotated image:', error);
+            setSaveError('Failed to save annotated images.');
+            setTimeout(() => setSaveError(null), 3000);
+        }
+        setIsSaving(false);  // End saving process
+    };
+    // Use isSaving to disable button during save operation
+    // <button onClick={saveAnnotatedImage} disabled={isSaving || taskIndex < 2}>
+    //     {isSaving ? 'Saving...' : 'Save Annotated Images'}
+    // </button>
     
     return (
         <div className="chatroom-container">
@@ -1478,75 +1504,69 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                     Once you have created the rectangle, you will be prompted to enter a text description for the annotation.<br></br>
                     Click on the Save Annotated Image button to save the annotated image.<br></br><br></br>
                      */}
-                    <strong>Chat Instructions</strong><br></br>
-                    Use the chat window to communicate with the other user.<br></br>
-                    The user connected to you will help you with the task.<br></br>
-                    You can also use the chat window to ask questions or seek clarifications.<br></br>
-                    The other user will tell you which things you need to annotate in the image.<br></br>
-                    Remember to save the annotated image once you have completed the task.<br></br>
-                    There are total three questions in this task.<br></br>
-                    Only when you submit the annotations of the three questions, the task will be completed and payment code will be revealed.<br></br>
-
-                    Let's get started! Ask questions in your chosen language in the chatbox below about the task.<br></br>
-
-
-
-
+                    <strong>Welcome! You are a performer of the Task</strong><br></br>
+                    There will be total three task of annotations: Task1 , Task2 and Task3.<br></br>
+                    At first, you will see the Task 1 , which you can already see. <br></br>
+                    Scroll down to see the chatbar and there is one instructor who will be connected to instruct you what you need to do in each task.<br></br>
+                    You will use the chat window to ask questions in your selected language every time you want to correctly annotated the image.<br></br><br></br>
+                    <br></br>
+                    Please be specific while asking the question. Do not talk about your personal informations. <br></br>
+                    After you complete the Task 3 and save the annotated images, you will get a payment code.<br></br>
+                    
 
                     </p>
-                    
-                    {/* Annotation Tool Buttons */}
+                    <strong>Task {taskIndex + 1} <br></br>  {taskIndex === 0 && 'Welcome to Task 1'}
+                        {taskIndex === 1 && 'Congratulations, you are now on Task 2'}
+                        {taskIndex === 2 && 'Congratulations, you are on Task 3'}</strong><br/>
+                        <p>Annotate {taskRequirements[taskIndex]} rectangle(s) on the image.</p>
 
+                        <Annotation
+                            src={images[taskIndex]}
+                            alt="Annotation Area"
+                            annotations={annotations}
+                            type="RECTANGLE"
+                            value={annotation}
+                            onChange={onChange}
+                            onSubmit={onSubmit}
+                        />
 
-        <Annotation
-            src="/images/taskimg1.jpg" // Ensure this path is correct
-            alt="Annotation Area"
-            annotations={annotations}
-            type={selectedTool }// 'NONE' disables drawing when erase is selected
-            value={annotation}
-            onChange={onChange}
-            onSubmit={onSubmit}
-             // Handle clicks for erase
-        />
-                    {/* <p>Use the Rectangle tool above to annotate the image as needed.</p>
-                    {/* **Feedback Messages** */}
-                    {/* {saveSuccess && <p style={{ color: 'green' }}>Annotated image saved successfully!</p>}
-                    {saveError && <p style={{ color: 'red' }}>{saveError}</p>} */} 
-                
-
-            
-                <div className="annotation-tools">
-                <button
-                    onClick={saveAnnotatedImage}
-                    disabled={!isSaveButtonEnabled || isSaving} // Only enabled after 5 annotations
-                >
-                    {isSaving ? 'Saving...' : 'Save Annotated Image'}
-                </button>
-                <p>Use the Rectangle tool above to annotate the image as needed.</p>
-                {saveSuccess && <p style={{ color: 'green' }}>Annotated image saved successfully!</p>}
-                {saveError && <p style={{ color: 'red' }}>{saveError}</p>}
-            </div>
-
-            {paymentCode && (
-                <div className="payment-code-container">
-                    <p>Your Payment Code:</p>
-                    <div className="payment-code-box">
-                        <span>{paymentCode}</span>
-                        <button onClick={handleCopyCode} className="copy-button">Copy</button>
+                        {annotationCount >= taskRequirements[taskIndex] && (
+                            taskIndex < 2 ? (
+                                <button onClick={handleNextTask}>Next</button>
+                            ) : (
+                                <button onClick={saveAnnotatedImage} disabled={isSaving || taskIndex < 2}>
+                                     {isSaving ? 'Saving...' : 'Save Annotated Images'}
+                                 </button>
+                        ))}
+                        {saveSuccess && <p style={{ color: 'green' }}>Annotated image saved successfully!</p>}
+                        {saveError && <p style={{ color: 'red' }}>{saveError}</p>}
                     </div>
-                    {copySuccess && <p className="copy-success">Copied to clipboard!</p>}
-                </div>
-            )}
+                )}
+                {paymentCode && (
+                     <div className="payment-code-container">
+                    <div className="payment-code-box">
+                        <p>Your Payment Code: <strong>{paymentCode}</strong></p>
+                        <button onClick={handleCopyCode} className="copy-button">Copy</button>
+                        </div>
+                        {copySuccess && <p>Copied to clipboard!</p>}
+                    </div>
+                )}
                 
-                </div>
-
-            )}
+              <br></br>
 
             {/* **Instructions for Second User (Non-ChatGPT)** */}
             {userRole === 'second' && !isChatGPT && (
                 <div id="second-user-instructions" className="second-user-instructions" >
-                    <h3>Welcome, Second User!</h3>
-                    <p>Here are some different instructions for you:</p>
+                    <h3>Welcome, You are the Instructor of the task!</h3>
+                    <p>Read the instructions carefully:<br></br>
+                   There will be three task of annotating the below image: Task 1, Task 2 and Task 3.
+                   Scroll down to see the chatbar. In that chat window you are connected to the performer.<br></br>
+                    The performer will perform Task 1 Task 2 and Task 3. You need to instruct them what to perform in each Task.
+                    The task 1 is to find and mark the Banana of the basket.
+        The task 2 is to find and mark all the red fruits on the basket. The task 3 is to find and mark the strawberry on the basket. The annotation will be done clicking the cursor of the mouse and drage it to draw the rectangle around the fruits.
+        After completing Task 3, there is not any task to do. You need to instruct the performer step by step. Do not share any personal information in the chat.
+        <br></br>
+        </p>
                     <img src="/images/taskimg1.jpg" alt="Second User Instructions" />
                     {/* Add more instructional content as needed */}
                 </div>
