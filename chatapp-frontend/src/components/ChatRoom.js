@@ -1190,6 +1190,10 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                         loadAnnotations();
                     } else if (data.role === 'second') {
                         setCanType(true); // Allow typing immediately
+                        setMessages((prevMessages) => [
+                            ...prevMessages,
+                            { username: 'System', message: 'You are now connected.' }
+                        ]);
                         console.log('Second user connected. Allowing typing immediately.');
                     }
                     break;
@@ -1488,6 +1492,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
         <div className="chatroom-container">
             <h1>Chat Room: {chatroomId}</h1>
             {/* <p>{message}</p> */}
+        <div className="content-container">
         <div className="task-instructions">
                
             
@@ -1580,7 +1585,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
             {messages.map((msg, index) => (
                          <div key={index} className={`message-container ${msg.username === username ? 'self' : 'other'}`}>
                          <div className={`chat-message ${msg.username === username ? 'self' : 'other'}`}>
-                            <strong>{msg.username}: </strong>
+                            <strong>{msg.username === username ? 'You' : msg.username}:</strong>
                             <span>{msg.message}</span>
                         </div>
                         </div>
@@ -1601,6 +1606,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                 {/* <button onClick={leaveChatroom}>Leave</button> */}
             </div>
             </div>
+        </div>
         </div>
     );
 }
