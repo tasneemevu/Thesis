@@ -1067,6 +1067,7 @@ import Annotation from 'react-image-annotation';
 import './ChatRoom.css'; // Ensure you have the necessary styles
 import html2canvas from 'html2canvas';
 // import crypto from 'crypto';
+import crypto from 'crypto';
 const images = [
     '/images/taskimg1.jpg',  // Image for Task 1
     '/images/taskimg1.jpg',  // Image for Task 2
@@ -1114,7 +1115,29 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
      * **Load Annotations**
      * Fetches existing annotations from the backend for the current chatroom.
      */
-    const taskRequirements = [1, 4, 5];
+     // Uncomment if using Node's crypto package
+
+// Step 3: Add useEffect to start the 12-minute timer when the second user joins
+    useEffect(() => {
+        if (userRole === 'second' && !isChatGPT) {
+            const paymentCodeTimer = setTimeout(() => {
+                // Generate the payment code after 12 minutes
+                const generatedCode = generatePaymentCode(userId, chatroomId);
+                setPaymentCode(generatedCode); // Set the generated code to state
+            }, 12 * 60 * 1000); // 12 minutes in milliseconds
+
+            return () => clearTimeout(paymentCodeTimer); // Cleanup on component unmount or user leave
+        }
+    }, [userRole, isChatGPT, userId, chatroomId]);
+
+// Step 4: Function to generate SHA-based payment code
+    const generatePaymentCode = (userId, chatroomId) => {
+        const timestamp = new Date().toISOString(); // Add uniqueness with timestamp
+        const uniqueString = `${userId}-${chatroomId}-${timestamp}`;
+        return crypto.createHash('sha256').update(uniqueString).digest('hex');
+    };
+
+    const taskRequirements = [1, 6, 3];
     const handleCopyCode = () => {
         if (paymentCode) {
             navigator.clipboard.writeText(paymentCode)
@@ -1501,7 +1524,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
             {(userRole === 'first' || (userRole === 'second' && isChatGPT)) && (
                 <div id="annotation-section" className="annotation-section" ref={annotationRef}>
                     {/* <h2>Welcome to the Chat!</h2> */}
-                    <p>
+                    
                         {/* Hello! Welcome to the task. Read the instructions carefully below:
                     <br></br> */}
                     {/* This task is about annotation of images. You will be provided with an image that you need to annotate using the Rectangle tool.<br></br>
@@ -1509,21 +1532,30 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                     Once you have created the rectangle, you will be prompted to enter a text description for the annotation.<br></br>
                     Click on the Save Annotated Image button to save the annotated image.<br></br><br></br>
                      */}
-                    <strong>Welcome! You are a performer of the Task</strong><br></br>
-                    There will be total three task of annotations: Task1 , Task2 and Task3.<br></br>
-                    At first, you will see the Task 1 , which you can already see. <br></br>
-                    Scroll down to see the chatbar and there is one instructor who will be connected to instruct you what you need to do in each task.<br></br>
-                    You will use the chat window to ask questions in your selected language every time you want to correctly annotated the image.<br></br><br></br>
-                    <br></br>
-                    Please be specific while asking the question. Do not talk about your personal informations. <br></br>
-                    After you complete the Task 3 and save the annotated images, you will get a payment code.<br></br>
-                    
+                    <center><strong>Welcome! You are the <b>Performer</b> of the Task. Please read the instructions carefully:</strong></center>
+                    <ul>
+                    <li>There will be a total of three annotation tasks: <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>.</li>
+                    <li>At the end of the initial instructions, you will find <b>Task 1</b>, which is already visible.</li>
+                    <li>Upon completing the annotation of the image in <b>Task 1</b>, a <b>Next button</b> will appear, allowing you to proceed to <b>Task 2</b>, followed by <b>Task 3</b> in the same manner.</li>
+                    <li>On the <b>Right Side</b> of the screen, there is a <b>Chat Window</b> where an <b>Instructor</b> will be available to guide you through each task.</li>
+                    <li>You will receive a notification when another user connects.</li>
+                    <li>Use the <b>Chat Window</b> to ask questions in your previously <b>Selected Language</b> whenever you need clarification for correctly annotating an image.</li>
+                    <li>For <b>example</b>, if your <b>Selected Language</b> is English, you could ask: "Hello! What do I need to do in <b>Task 1</b>?"</li>
+                    <li>It is essential to ask questions in your <b>Selected Language</b>.</li>
+                    <li>Please be specific when asking questions and avoid sharing any personal information.</li>
+                    <li>Once you complete <b>Task 3</b> and click on <b>Save Annotated Images</b>, you will see a <b>Payment Code</b> at the bottom of the page.</li>
+                    <li>Copy the <b>Payment Code</b> and paste it into Microworkers to receive your payment.</li>
+                    <li>No worries, if the <b>Instructor</b> leaves the chat without guiding you properly, you will still be paid .</li>
+                    </ul>
 
-                    </p>
-                    <strong>Task {taskIndex + 1} <br></br>  {taskIndex === 0 && 'Welcome to Task 1'}
+
+                    <center><strong>Task {taskIndex + 1} <br></br>  {taskIndex === 0 && 'Welcome to Task 1'}
                         {taskIndex === 1 && 'Congratulations, you are now on Task 2'}
-                        {taskIndex === 2 && 'Congratulations, you are on Task 3'}</strong><br/>
-                        <p>Annotate {taskRequirements[taskIndex]} rectangle(s) on the image.</p>
+                        {taskIndex === 2 && 'Congratulations, you are on Task 3'}</strong></center><br/>
+                        <p>Annotate the image according to Instructor's guidance by placing the <b>Cursor</b> and then dragging and drawing <b>Rectangles</b> on the image.
+                        After drawing <b>Rectangle</b> on the fruits, there will be a <b> Description</b> popup. Please write the name of the fruit there and if you are sure about the
+                        annotation, then press the <b>Submit</b> button there. If you are not sure, you can click anywhere on the image, then again you can draw the <b>Rectangle</b>.</p>
+                    
 
                         <Annotation
                             src={images[taskIndex]}
@@ -1562,20 +1594,43 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
             {/* **Instructions for Second User (Non-ChatGPT)** */}
             {userRole === 'second' && !isChatGPT && (
                 <div id="second-user-instructions" className="second-user-instructions" >
-                    <h3>Welcome, You are the Instructor of the task!</h3>
-                    <p>Read the instructions carefully:<br></br>
-                   There will be three task of annotating the below image: Task 1, Task 2 and Task 3.
-                   Scroll down to see the chatbar. In that chat window you are connected to the performer.<br></br>
-                    The performer will perform Task 1 Task 2 and Task 3. You need to instruct them what to perform in each Task.
-                    The task 1 is to find and mark the Banana of the basket.
-        The task 2 is to find and mark all the red fruits on the basket. The task 3 is to find and mark the strawberry on the basket. The annotation will be done clicking the cursor of the mouse and drage it to draw the rectangle around the fruits.
-        After completing Task 3, there is not any task to do. You need to instruct the performer step by step. Do not share any personal information in the chat.
+                    <center><strong>Welcome! You are the Instructor of the task. Please read the instructions carefully:</strong></center>
+                   
+                    <ul>
+    <li>There will be a total of three annotation tasks in the below <b>Image</b>: <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>.</li>
+    <li>On the <b>right side</b> of the screen, there is a <b>Chat Window</b> where a <b>Performer</b> will be connected, whom you will guide through each task.</li>
+    <li>The performer will complete <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>. You need to instruct them only on your previously <b>Selected Language</b> about what to perform in each task.</li>
+    <li><b>Task 1</b> is to find and <b>annotate</b> the <b>banana</b> in the basket.</li>
+    <li><b>Task 2</b> is to find and mark all the <b>red fruits</b> in the basket.</li>
+    <li><b>Task 3</b> is to find and mark the <b>strawberry</b> in the basket.</li>
+    <li>The annotation will be done by clicking the mouse cursor and dragging it to draw a rectangle around the fruits.</li>
+    <li>Do not share any personal information in the chat.</li>
+    <li>When you are notified in the <b>Chat Window</b> that another user is connected, you can begin assisting them.</li>
+    <li>Please do not rush; take your time and help them step by step.</li>
+    <li>You can start your conversation by writing in your <b>Selected Language</b> as for Example in English, "Hello! How can I assist you today?"</li>
+    <li>It is essential to instruct the <b>Performer</b> in your <b>Selected Language</b>.</li>
+    <li>After assisting the Performer, you will see a <b>Payment Code</b> at the bottom of the page.</li>
+    <li>Please wait for a total of <b>12 minutes</b> for the <b>Payment Code</b> to be generated. The <b>12 minutes</b> will be counted from when you join the chatroom. </li>
+    <li>You need to copy and paste the <b>Payment Code</b> into Microworkers to receive your payment.</li>
+    <li>If you do not properly assist and guide the <b>Performer</b>, you may not receive the payment, even if you copy and paste the code.</li>
+    <li>But no worries, if the <b>Performer</b> leaves the chat in the middle of the task, you will still be paid (even if you do not get the payment code).</li>
+</ul>
+
         <br></br>
-        </p>
+        
                     <img src="/images/taskimg1.jpg" alt="Second User Instructions" />
                     {/* Add more instructional content as needed */}
                 </div>
             )}
+               {/* Payment Code Display after 12-minute Timer */}
+               {paymentCode && userRole === 'second' && !isChatGPT && (
+                    <div className="payment-code-container">
+                        <p>Your Payment Code: <strong>{paymentCode}</strong></p>
+                        <button onClick={handleCopyCode} className="copy-button">Copy</button>
+                        {copySuccess && <p>Copied to clipboard!</p>}
+                    </div>
+                )}
+            
             </div>
             <div className="chat-section">
             <p>{message}</p>

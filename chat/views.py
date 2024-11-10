@@ -86,6 +86,7 @@ from django.utils import timezone
 # Initialize the OpenAI API
 openai.api_key = settings.OPENAI_API_KEY
 
+
 def assign_chatroom(request):
     if request.method == 'GET':
         selected_language = request.GET.get('language')

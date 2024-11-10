@@ -37,28 +37,31 @@ function App() {
                     chatroomId ? (
                         <ChatRoom {...props} chatroomId={chatroomId} userId={userId} username={username} message={message} language={language} />
                     ) : (
-                        <div><div className='annotation-section'>Hello! Welcome to the task. Read the instructions carefully below:
+                        <div><div className='annotation-section'><center><strong>Hello! Welcome to the task. Read the instructions carefully below:</strong></center>
                         <br></br>
-                        This task is about annotation of images with the help of an instructor<br></br>
-                        You can be either a performer or an instructor. You can see it after joining the chatroom<br></br>
-                        Please select your Native language. If there is no native language of yours, select the language which you can write, read and understand.<br></br>
-                        Because you have to perform/ instruct the task while interacting with the instructor/performer in your language. <br></br>
-                        Once you select the language, you will be redirected to a chatroom. Have fun with the task.<br></br>
+                        <ul>
+                       <li>This task involves the annotation of images with the assistance of an <b>Instructor </b>.</li>
+                        <li>You can be either a <b>Performer</b> or an <b>Instructor</b>. Your role will be determined once you join the chatroom.</li>
+                        <li>Please select your <b>Native Language</b>. If your <b>Native Language</b> is not available there in the dropdown, select a language you can read, write, and understand well.</li>
+                        <li>You will need to perform or instruct the task while interacting with <b>Performer</b> or the <b>Instructor</b> in the <b>Selected Language</b>.</li>
+                        <li>Once you select the language, you will be redirected to the chatroom. Enjoy the task!</li>
+                        </ul>
                         </div>
                             <div className="language-selection-container">
-                            <h2>Select Your Preferred Language</h2>
+                            <h2>Select Your Native/Preferred Language</h2>
                             <select value={language} onChange={(e) => setLanguage(e.target.value)}>
                                 <option value="">Select Language</option>
-                                <option value="en">English</option>
-                                <option value="es">Spanish</option>
-                                <option value="zh">Chinese</option>
-                                <option value="hi">Hindi</option>
                                 <option value="ar">Arabic</option>
+                                <option value="bn">Bengali</option>
+                                <option value="zh">Chinese</option>
+                                <option value="en">English</option>
                                 <option value="fr">French</option>
-                                <option value="ru">Russian</option>
-                                <option value="ja">Japanese</option>
                                 <option value="de">German</option>
+                                <option value="hi">Hindi</option>
+                                <option value="ja">Japanese</option>
                                 <option value="pt">Portuguese</option>
+                                <option value="ru">Russian</option>
+                                <option value="es">Spanish</option>
                             </select>
                             <button onClick={fetchChatroom} disabled={!language} className="join-button">Join Chatroom</button>
                         </div></div>
