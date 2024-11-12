@@ -486,7 +486,7 @@ from google.oauth2 import service_account
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Set Google Translate API credentials
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "D:/thesis/coastal-idea-435113-d0-aa8b6c590c5e.json"
+# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "./coastal-idea-435113-d0-aa8b6c590c5e.json"
 
 def get_credentials(service_account_file):
     credentials = service_account.Credentials.from_service_account_file(
@@ -497,7 +497,7 @@ def get_credentials(service_account_file):
 
 class ChatConsumer(AsyncWebsocketConsumer):
     def translate_message(self, message, target_language):
-        service_account_file = 'D:/thesis/coastal-idea-435113-d0-aa8b6c590c5e.json'
+        service_account_file = "./coastal-idea-435113-d0-aa8b6c590c5e.json"
         
         # Get credentials
         credentials = get_credentials(service_account_file)
