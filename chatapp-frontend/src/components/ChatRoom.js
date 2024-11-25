@@ -1118,18 +1118,59 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
      // Uncomment if using Node's crypto package
 
 // Step 3: Add useEffect to start the 12-minute timer when the second user joins
+    const savePaymentCodeToBackend = useCallback(async (generatedCode) => {
+        try {
+            await axios.post(
+                'http://localhost:8000/chat/api/save-payment-code/',
+                {
+                    chatroom_id: chatroomId,
+                    user_id: userId,
+                    payment_code: generatedCode,
+                },
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true,
+                }
+            );
+            console.log('Payment code saved successfully.');
+        } catch (error) {
+            console.error('Error saving payment code:', error);
+        }
+    }, [chatroomId, userId]);
+
     useEffect(() => {
         if (userRole === 'second' && !isChatGPT) {
             const paymentCodeTimer = setTimeout(() => {
                 // Generate the payment code after 12 minutes
                 const generatedCode = generatePaymentCode(userId, chatroomId);
                 setPaymentCode(generatedCode); // Set the generated code to state
-            }, 12 * 60 * 1000); // 12 minutes in milliseconds
+                savePaymentCodeToBackend(generatedCode); // Save payment code after generation
+            }, 3 * 60 * 1000); // 12 minutes in milliseconds
 
             return () => clearTimeout(paymentCodeTimer); // Cleanup on component unmount or user leave
         }
-    }, [userRole, isChatGPT, userId, chatroomId]);
+    }, [userRole, isChatGPT, userId, chatroomId, savePaymentCodeToBackend]); // Include savePaymentCodeToBackend in the dependency array
 
+
+    // const savePaymentCodeToBackend = async (generatedCode) => {
+    //     try {
+    //         await axios.post(
+    //             'http://localhost:8000/chat/api/save-payment-code/',
+    //             {
+    //                 chatroom_id: chatroomId,
+    //                 user_role: userRole, // Specify whether it's user1 or user2
+    //                 payment_code: generatedCode
+    //             },
+    //             {
+    //                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Cookies.get('csrftoken') },
+    //                 withCredentials: true,
+    //             }
+    //         );
+    //         console.log('Payment code saved successfully.');
+    //     } catch (error) {
+    //         console.error('Error saving payment code:', error);
+    //     }
+    // };
 // Step 4: Function to generate SHA-based payment code
     const generatePaymentCode = (userId, chatroomId) => {
         const timestamp = new Date().toISOString(); // Add uniqueness with timestamp
@@ -1483,7 +1524,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     
         // Use the final `taskAnnotations` including Task 3
         try {
-            const response = await axios.post(
+             await axios.post(
                 'http://localhost:8000/chat/api/annotated-image/save/',
                 {
                     chatroom_id: chatroomId,
@@ -1497,7 +1538,9 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
             );
     
             setSaveSuccess(true);
-            setPaymentCode(response.data.payment_code);
+            const generatedCode = generatePaymentCode(userId, chatroomId);
+            setPaymentCode(generatedCode);
+            await savePaymentCodeToBackend(generatedCode);
             setTimeout(() => setSaveSuccess(false), 3000);
         } catch (error) {
             console.error('Error saving annotated image:', error);

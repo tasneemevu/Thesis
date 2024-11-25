@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'channels',
     'corsheaders',
     'chat',
+    'django_extensions',
     
 ]
 ACCOUNT_AUTHENTICATION_METHOD = 'email'

@@ -90,6 +90,16 @@ openai.api_key = settings.OPENAI_API_KEY
 def assign_chatroom(request):
     if request.method == 'GET':
         selected_language = request.GET.get('language')
+        worker_id = request.GET.get('worker_id')  # Retrieve worker_id from the request
+        campaign_id = request.GET.get('campaign_id')  # Retrieve campaign_id from the request
+        print(f"Selected Language: {selected_language}")
+        print(f"Worker ID: {worker_id}")
+        print(f"Campaign ID: {campaign_id}")
+
+        if not worker_id or not campaign_id:
+            return JsonResponse({'error': 'Worker ID or Campaign ID is missing'}, status=400)
+
+        user = None  # Initialize user variable
         user = None  # Initialize user variable
         
         # Get the count of human-to-human and human-to-ChatGPT chatrooms
@@ -108,7 +118,9 @@ def assign_chatroom(request):
                     username = f"user_{available_room.id}_2"
                     user = User.objects.create(username=username)
                     available_room.user2 = user
-                    available_room.user2_language = selected_language  # Store language for user2
+                    available_room.user2_language = selected_language 
+                    available_room.user2_worker_id = worker_id  # Store worker_id
+                    available_room.user2_campaign_id = campaign_id # Store language for user2
                     available_room.save()
                     message = "You have been connected to another user."
                 else:
@@ -117,13 +129,18 @@ def assign_chatroom(request):
                     user = User.objects.create(username=unique_chatgpt_id)
                     available_room.user2 = user
                     available_room.user2_language = selected_language  # Store language for ChatGPT
-                    available_room.chat_completed = True  # Mark the chatroom as completed
+                    available_room.chat_completed = True
+                    # available_room.worker_id = worker_id  # Store worker_id
+                    # available_room.campaign_id = campaign_id  # Mark the chatroom as completed
                     available_room.save()
                     message = "You have been connected to a user. Start your conversation."
 
             else:
                 # No available rooms; create a new room
-                chatroom = ChatRoom.objects.create()
+                chatroom = ChatRoom.objects.create(
+                    user1_worker_id=worker_id,  # Store worker_id for user1
+                    user1_campaign_id=campaign_id
+                )
                 username = f"user_{chatroom.id}_1"
                 user = User.objects.create(username=username)
                 chatroom.user1 = user
@@ -312,17 +329,67 @@ class SaveAnnotatedImageView(APIView):
                     )
 
             # Generate SHA-256 payment code if not already generated
-            if not chatroom.payment_code:
-                unique_string = f"{user_id}-{chatroom_id}-{timezone.now()}"
+             # Generate SHA-256 payment code for the appropriate user
+            if chatroom.user1 == user and not chatroom.user1_payment_code:
+                # User is user1, generate and save user1's payment code
+                unique_string = f"user1-{user_id}-{chatroom_id}-{timezone.now()}"
                 payment_code = hashlib.sha256(unique_string.encode()).hexdigest()
-                chatroom.payment_code = payment_code
+                chatroom.user1_payment_code = payment_code
                 chatroom.save()
+
+            elif (
+                chatroom.user2 == user and not chatroom.user2_payment_code and 
+                not chatroom.user2.username.startswith("UserC_")
+            ):
+                # User is user2 (and is a human, not ChatGPT), generate and save user2's payment code
+                unique_string = f"user2-{user_id}-{chatroom_id}-{timezone.now()}"
+                payment_code = hashlib.sha256(unique_string.encode()).hexdigest()
+                chatroom.user2_payment_code = payment_code
+                chatroom.save()
+
+            # Select the correct payment code to return in the response
+            payment_code = (
+                chatroom.user1_payment_code if chatroom.user1 == user 
+                else chatroom.user2_payment_code if chatroom.user2 == user and not chatroom.user2.username.startswith("UserC_") 
+                else None
+            )
 
             return Response({
                 'status': 'All annotated images saved successfully.',
-                'payment_code': chatroom.payment_code
+                'payment_code': payment_code
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             print(f"Error saving annotated image: {e}")
             return Response({'error': 'Failed to save annotated image.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+class SavePaymentCodeView(APIView):
+    permission_classes = [permissions.AllowAny] 
+    def post(self, request):
+        chatroom_id = request.data.get('chatroom_id')
+        user_id = request.data.get('user_id')
+        payment_code = request.data.get('payment_code')
+
+        if not chatroom_id or not user_id or not payment_code:
+            return Response({'error': 'Missing required data.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            chatroom = ChatRoom.objects.get(id=chatroom_id)
+            user = User.objects.get(id=user_id)
+        except ChatRoom.DoesNotExist:
+            return Response({'error': 'ChatRoom not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Assign payment code based on user role
+        if chatroom.user1 == user:
+            chatroom.user1_payment_code = payment_code
+        elif chatroom.user2 == user:
+            chatroom.user2_payment_code = payment_code
+        else:
+            return Response({'error': 'User not part of the chatroom.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        chatroom.save()
+        return Response({'status': 'Payment code saved successfully.'}, status=status.HTTP_200_OK)

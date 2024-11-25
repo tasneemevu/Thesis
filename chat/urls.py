@@ -1,7 +1,7 @@
 # chat/urls.py
 from django.urls import path
 from . import views
-from .views import  AnnotationListCreateView, SubmitAnnotationView, SaveAnnotatedImageView
+from .views import  AnnotationListCreateView, SubmitAnnotationView, SaveAnnotatedImageView, SavePaymentCodeView
 
 urlpatterns = [
     path('assign-chatroom/', views.assign_chatroom, name='assign_chatroom'),
@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/annotations/', AnnotationListCreateView.as_view(), name='annotations'),
     path('api/annotations/submit/', SubmitAnnotationView.as_view(), name='submit_annotation'),
     path('api/annotated-image/save/', SaveAnnotatedImageView.as_view(), name='save_annotated_image'),
+    path('api/save-payment-code/', SavePaymentCodeView.as_view(), name='save-payment-code'),
     
 ]
 
