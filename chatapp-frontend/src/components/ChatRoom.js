@@ -1653,7 +1653,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     <li>You can start your conversation by writing in your <b>Selected Language</b> as for Example in English, "Hello! How can I assist you today?"</li>
     <li>It is essential to instruct the <b>Performer</b> in your <b>Selected Language</b>.</li>
     <li>After assisting the Performer, you will see a <b>Payment Code</b> at the bottom of the page.</li>
-    <li>Please wait for a total of <b>12 minutes</b> for the <b>Payment Code</b> to be generated. The <b>12 minutes</b> will be counted from when you join the chatroom. </li>
+    <li>Please wait for a total of <b>8 minutes</b> for the <b>Payment Code</b> to be generated. The <b>8 minutes</b> will be counted from when you join the chatroom. </li>
     <li>You need to copy and paste the <b>Payment Code</b> into Microworkers to receive your payment.</li>
     <li>If you do not properly assist and guide the <b>Performer</b>, you may not receive the payment, even if you copy and paste the code.</li>
     <li>But no worries, if the <b>Performer</b> leaves the chat in the middle of the task, you will still be paid (even if you do not get the payment code).</li>
