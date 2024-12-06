@@ -481,6 +481,7 @@ import os
 import asyncio
 from openai import OpenAI
 from google.oauth2 import service_account
+import tempfile
 
 # Set up OpenAI API key
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -496,17 +497,41 @@ def get_credentials(service_account_file):
     return credentials
 
 class ChatConsumer(AsyncWebsocketConsumer):
+    # def translate_message(self, message, target_language):
+    #     service_account_file = "./coastal-idea-435113-d0-aa8b6c590c5e.json"
+        
+    #     # Get credentials
+    #     credentials = get_credentials(service_account_file)
+        
+    #     # Initialize the translation client with the credentials
+    #     translate_client = translate.Client(credentials=credentials)
+        
+    #     result = translate_client.translate(message, target_language=target_language)
+    #     return result['translatedText']
     def translate_message(self, message, target_language):
-        service_account_file = "./coastal-idea-435113-d0-aa8b6c590c5e.json"
-        
-        # Get credentials
-        credentials = get_credentials(service_account_file)
-        
-        # Initialize the translation client with the credentials
-        translate_client = translate.Client(credentials=credentials)
-        
-        result = translate_client.translate(message, target_language=target_language)
-        return result['translatedText']
+        # Load credentials from the environment variable
+        credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+        if not credentials_json:
+            raise ValueError("Environment variable GOOGLE_APPLICATION_CREDENTIALS_JSON is not set")
+
+        # Convert the JSON string to a dictionary
+        credentials_dict = json.loads(credentials_json)
+
+        # Create a temporary file for credentials
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as temp_file:
+            credentials_file = temp_file.name
+            json.dump(credentials_dict, temp_file)
+
+        try:
+            # Initialize the translation client
+            translate_client = translate.Client.from_service_account_json(credentials_file)
+
+            # Perform the translation
+            result = translate_client.translate(message, target_language=target_language)
+            return result["translatedText"]
+        finally:
+            # Clean up the temporary file
+            os.remove(credentials_file)
     
     
     async def connect(self):

@@ -12,12 +12,14 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-import os
 from dotenv import load_dotenv
+import json
 
 load_dotenv()  # Load environment variables from a .env file if present
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+credentials = json.loads(credentials_json)
 
 
 
