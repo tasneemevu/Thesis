@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 import json
+import dj_database_url
 
 load_dotenv()  # Load environment variables from a .env file if present
 
@@ -38,7 +39,9 @@ SECRET_KEY = 'django-insecure-*75jkgo9w0p&xnkpqzmxc4w@t3x6k9q0)q&4#y*h-ki*2aj99d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['thesismaster2.herokuapp.com', 'localhost']
+
 
 
 # Application definition
@@ -78,6 +81,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this line
 ]
 # CORS_ALLOW_ALL_ORIGINS = True  # Only for development
 
@@ -108,11 +112,14 @@ ASGI_APPLICATION = 'Project.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(default='sqlite:///db.sqlite3')
 }
 
 
