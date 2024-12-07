@@ -124,7 +124,7 @@ function App() {
         }
     
         try {
-            const response = await axios.get('http://localhost:8000/chat/assign-chatroom/', {
+            const response = await axios.get('https://thesismaster2-b9f77d674540.herokuapp.com/chat/assign-chatroom/', {
                 params: {
                     language: language,
                     worker_id: workerId,

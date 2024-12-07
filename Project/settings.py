@@ -179,7 +179,9 @@ CHANNEL_LAYERS = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    # "http://localhost:3000",
+    "https://thesismaster2-b9f77d674540.herokuapp.com",
+    "https://chatapp-frontend-b0e6504a9912.herokuapp.com",
 ]
 # CSRF_TRUSTED_ORIGINS = [
 #     "http://localhost:3000",  #addednew
