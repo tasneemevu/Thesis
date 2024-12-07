@@ -40,7 +40,7 @@ SECRET_KEY = 'django-insecure-*75jkgo9w0p&xnkpqzmxc4w@t3x6k9q0)q&4#y*h-ki*2aj99d
 DEBUG = True
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['thesismaster2.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['thesismaster2-b9f77d674540.herokuapp.com', 'localhost']
 
 
 
