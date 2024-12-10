@@ -1221,7 +1221,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
      * Establishes a WebSocket connection and handles incoming messages.
      */
     useEffect(() => {
-        const ws = new WebSocket(`https://thesismaster2-b9f77d674540.herokuapp.com/ws/chat/${chatroomId}/`);
+        const ws = new WebSocket(`wss://thesismaster2-b9f77d674540.herokuapp.com/ws/chat/${chatroomId}/`);
         setSocket(ws);
 
         ws.onopen = () => {
