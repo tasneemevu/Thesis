@@ -118,10 +118,22 @@ ASGI_APPLICATION = 'Project.asgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+# DATABASES = {
+#     'default': dj_database_url.config(default='sqlite:///db.sqlite3')
+# }
 DATABASES = {
-    'default': dj_database_url.config(default='sqlite:///db.sqlite3')
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'dcpp2kd95sitro',  # Your Heroku database name
+        'USER': 'uee9k9lg31seqq',   # Your Heroku database username
+        'PASSWORD': 'pf4063ae2d79dfabdad164354217cf05dc56fed488b0977c18906f1a356c5b1b3',  # Your Heroku database password
+        'HOST': 'ccaml3dimis7eh.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',  # Your Heroku database host
+        'PORT': '5432',             # Default PostgreSQL port
+        'OPTIONS': {
+            'sslmode': 'require',   # Required for Heroku
+        },
+    }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
