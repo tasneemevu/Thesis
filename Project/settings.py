@@ -40,7 +40,7 @@ SECRET_KEY = 'django-insecure-*75jkgo9w0p&xnkpqzmxc4w@t3x6k9q0)q&4#y*h-ki*2aj99d
 DEBUG = True
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['thesismaster2-b9f77d674540.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['thcrowdchatb-4acf13a87d2c.herokuapp.com', 'localhost']
 
 
 
@@ -192,7 +192,7 @@ CHANNEL_LAYERS = {
 
 CORS_ALLOWED_ORIGINS = [
     # "http://localhost:3000",
-    "https://thesismaster2-b9f77d674540.herokuapp.com",
+    "https://thcrowdchatb-4acf13a87d2c.herokuapp.com",
     "https://chatapp-frontend-b0e6504a9912.herokuapp.com",
 ]
 # CSRF_TRUSTED_ORIGINS = [

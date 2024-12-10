@@ -1121,7 +1121,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     const savePaymentCodeToBackend = useCallback(async (generatedCode) => {
         try {
             await axios.post(
-                'https://thesismaster2-b9f77d674540.herokuapp.com/chat/api/save-payment-code/',
+                'https://thcrowdchatb-4acf13a87d2c.herokuapp.com/chat/api/save-payment-code/',
                 {
                     chatroom_id: chatroomId,
                     user_id: userId,
@@ -1193,7 +1193,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     const loadAnnotations = useCallback(async () => {
         try {
             const response = await axios.get(
-                `https://thesismaster2-b9f77d674540.herokuapp.com/chat/api/annotations/?chatroom_id=${chatroomId}`,
+                `https://thcrowdchatb-4acf13a87d2c.herokuapp.com/chat/api/annotations/?chatroom_id=${chatroomId}`,
                 {
                     headers: {
                         'Content-Type': 'application/json',
@@ -1221,7 +1221,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
      * Establishes a WebSocket connection and handles incoming messages.
      */
     useEffect(() => {
-        const ws = new WebSocket(`wss://thesismaster2-b9f77d674540.herokuapp.com/ws/chat/${chatroomId}/`);
+        const ws = new WebSocket(`wss://thcrowdchatb-4acf13a87d2c.herokuapp.com/ws/chat/${chatroomId}/`);
         setSocket(ws);
 
         ws.onopen = () => {
@@ -1435,7 +1435,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
         try {
             // Assign the result of axios to response directly
             const response = await axios.post(
-                'https://thesismaster2-b9f77d674540.herokuapp.com/chat/api/annotations/',
+                'https://thcrowdchatb-4acf13a87d2c.herokuapp.com/chat/api/annotations/',
                 annotationData,
                 {
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Cookies.get('csrftoken') },
@@ -1525,7 +1525,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
         // Use the final `taskAnnotations` including Task 3
         try {
              await axios.post(
-                'https://thesismaster2-b9f77d674540.herokuapp.com/chat/api/annotated-image/save/',
+                'https://thcrowdchatb-4acf13a87d2c.herokuapp.com/chat/api/annotated-image/save/',
                 {
                     chatroom_id: chatroomId,
                     user_id: userId,
