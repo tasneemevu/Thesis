@@ -189,20 +189,34 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #         },
 #     },
 # }
-import ssl
+# import ssl
 
-REDIS_URL = os.environ.get("REDIS_URL")
+# REDIS_URL = os.environ.get("REDIS_URL")
 
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [
+#                 {
+#                     "address": REDIS_URL,
+#                     "ssl": {
+#                         "ssl_cert_reqs": ssl.CERT_NONE,  # Skip certificate verification (for Heroku Redis)
+#                     },
+#                 }
+#             ],
+#         },
+#     },
+# }
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
             "hosts": [
                 {
-                    "address": REDIS_URL,
-                    "ssl": {
-                        "ssl_cert_reqs": ssl.CERT_NONE,  # Skip certificate verification (for Heroku Redis)
-                    },
+                    "address": "rediss://ec2-52-50-233-108.eu-west-1.compute.amazonaws.com:31670",
+                    "password": "p8835fa9f99270fe67be289ab561b4ac6f3497d8159e55b9259e3c5f429a62069",
+                    "ssl_cert_reqs": None  # Optional: Disable SSL certificate verification if required
                 }
             ],
         },
