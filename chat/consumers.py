@@ -479,12 +479,12 @@ from asgiref.sync import sync_to_async
 from google.cloud import translate_v2 as translate
 import os
 import asyncio
-from openai import OpenAI
+import openai
 from google.oauth2 import service_account
 import tempfile
 
 # Set up OpenAI API key
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Set Google Translate API credentials
 # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "./coastal-idea-435113-d0-aa8b6c590c5e.json"
@@ -729,7 +729,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Call GPT-4 API with the task context and user's question
         try:
-            response = client.chat.completions.create(
+            response = openai.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": task_context},

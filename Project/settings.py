@@ -40,7 +40,7 @@ SECRET_KEY = 'django-insecure-*75jkgo9w0p&xnkpqzmxc4w@t3x6k9q0)q&4#y*h-ki*2aj99d
 DEBUG = True
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['thcrowdchatb-4acf13a87d2c.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['thcrowdchatb-4acf13a87d2c.herokuapp.com', 'localhost', '127.0.0.1']
 
 
 
@@ -76,7 +76,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -230,11 +230,14 @@ CORS_ALLOWED_ORIGINS = [
     # "http://localhost:3000",
     "https://thcrowdchatb-4acf13a87d2c.herokuapp.com",
     "https://chatapp-frontend-b0e6504a9912.herokuapp.com",
+    "http://127.0.0.1:8000"
 ]
-# CSRF_TRUSTED_ORIGINS = [
-#     "http://localhost:3000",  #addednew
+CSRF_TRUSTED_ORIGINS = [
+    "https://thcrowdchatb-4acf13a87d2c.herokuapp.com",
+    "https://chatapp-frontend-b0e6504a9912.herokuapp.com",
+    "http://127.0.0.1:8000"# Include other frontend domains if any
+]
 
-# ]
 CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
