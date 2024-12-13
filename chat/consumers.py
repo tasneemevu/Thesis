@@ -616,64 +616,67 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Check if the second user is ChatGPT (UserC)
         if user2.username.startswith("UserC_"):
-            # Handle task-related questions or instructions
+            # Fetch the latest task
             task = await sync_to_async(lambda: Task.objects.last())()
+            if not task:
+                print("No task found. Cannot proceed with ChatGPT response.")
+                return  # Exit the function since no task is available
 
-            if task:
-                # Translate and save the user's message
-                target_language1 = chatroom.user2_language
-                translated_message1 = await sync_to_async(self.translate_message)(message, target_language1)
-                print(f"Translated message: {translated_message1}")
-                await sync_to_async(Message.objects.create)(user=user, chatroom=chatroom, content=message, translated_content=translated_message1)
+            # Translate and save the user's message
+            target_language1 = chatroom.user2_language
+            translated_message1 = await sync_to_async(self.translate_message)(message, target_language1)
+            print(f"Translated message: {translated_message1}")
+            await sync_to_async(Message.objects.create)(user=user, chatroom=chatroom, content=message, translated_content=translated_message1)
 
-                # Send the user's translated message to the chatroom immediately
-                await self.send(text_data=json.dumps({
-                    'type': 'chat',
-                    'message': message,
-                    'username': username
-                }))
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'chat_message',
-                        'message': translated_message1,  # User's translated message
-                        'username': username,
-                        'sender': self.channel_name,
-                    }
-                )
-                print("Sent message to group:", self.room_group_name)
+            # Send the user's translated message to the chatroom immediately
+            await self.send(text_data=json.dumps({
+                'type': 'chat',
+                'message': message,
+                'username': username
+            }))
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': translated_message1,  # User's translated message
+                    'username': username,
+                    'sender': self.channel_name,
+                }
+            )
+            print("Sent message to group:", self.room_group_name)
 
-                # Now process ChatGPT's response based on the user's message
-                gpt_response = await sync_to_async(self.get_gpt_response)(translated_message1, task.description, task.image)
-                print(f"GPT response: {gpt_response}")
+            # Now process ChatGPT's response based on the user's message
+            gpt_response = await sync_to_async(self.get_gpt_response)(translated_message1, task.description, task.image)
+            print(f"GPT response: {gpt_response}")
 
-                # Translate ChatGPT's response to user1's language
-                target_language2 = chatroom.user1_language
-                translated_response2 = await sync_to_async(self.translate_message)(gpt_response, target_language2)
+            # Translate ChatGPT's response to user1's language
+            target_language2 = chatroom.user1_language
+            translated_response2 = await sync_to_async(self.translate_message)(gpt_response, target_language2)
 
-                # Save ChatGPT's original and translated response
-                await sync_to_async(Message.objects.create)(
-                    user=user2,  # ChatGPT is responding
-                    chatroom=chatroom,
-                    content=gpt_response,  # Original ChatGPT response in English
-                    translated_content=translated_response2 # Translated response in user1's language
-                )
+            # Save ChatGPT's original and translated response
+            await sync_to_async(Message.objects.create)(
+                user=user2,  # ChatGPT is responding
+                chatroom=chatroom,
+                content=gpt_response,  # Original ChatGPT response in English
+                translated_content=translated_response2  # Translated response in user1's language
+            )
 
-                # Send ChatGPT's translated response to the chatroom
-                await self.send(text_data=json.dumps({
-                    'type': 'chat',
-                    'message': translated_response2,
-                    'username': 'UserC'
-                }))
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'chat_message',
-                        'message': translated_response2,  # Translated GPT response
-                        'username': 'UserC',
-                        'sender': self.channel_name,
-                    }
-                )
+            # Send ChatGPT's translated response to the chatroom
+            await self.send(text_data=json.dumps({
+                'type': 'chat',
+                'message': translated_response2,
+                'username': 'UserC'
+            }))
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': translated_response2,  # Translated GPT response
+                    'username': 'UserC',
+                    'sender': self.channel_name,
+                }
+            )
+
         else:
             # Handle user-to-user chat
             if await sync_to_async(lambda: chatroom.user1 == user)():
