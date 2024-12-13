@@ -623,6 +623,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 # Translate and save the user's message
                 target_language1 = chatroom.user2_language
                 translated_message1 = await sync_to_async(self.translate_message)(message, target_language1)
+                print(f"Translated message: {translated_message1}")
                 await sync_to_async(Message.objects.create)(user=user, chatroom=chatroom, content=message, translated_content=translated_message1)
 
                 # Send the user's translated message to the chatroom immediately
