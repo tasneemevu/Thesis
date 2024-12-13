@@ -721,15 +721,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """
 
         # Call GPT-4 API with the task context and user's question
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": task_context},
-                {"role": "user", "content": user_question}
-            ]
-        )
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": task_context},
+                    {"role": "user", "content": user_question}
+                ]
+            )
+            print(f"User Question: {user_question}")
+            print(f"Task Context: {task_context}")
 
-        return response.choices[0].message.content
+            print("OpenAI Response:", response)  # Log the response for debugging
+            return response.choices[0].message.content
+        except Exception as e:
+                print(f"OpenAI API Error: {e}")
+                return "Error communicating with ChatGPT."
 
     async def chat_message(self, event):
         message = event['message']
