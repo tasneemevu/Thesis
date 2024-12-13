@@ -602,6 +602,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
     async def receive(self, text_data):
+        print(f"Received WebSocket data: {text_data}")
         data = json.loads(text_data)
         message = data['message']
         username = data['username']
@@ -639,9 +640,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'sender': self.channel_name,
                     }
                 )
+                print("Sent message to group:", self.room_group_name)
 
                 # Now process ChatGPT's response based on the user's message
                 gpt_response = await sync_to_async(self.get_gpt_response)(translated_message1, task.description, task.image)
+                print(f"GPT response: {gpt_response}")
 
                 # Translate ChatGPT's response to user1's language
                 target_language2 = chatroom.user1_language
@@ -739,6 +742,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 return "Error communicating with ChatGPT."
 
     async def chat_message(self, event):
+        print(f"Chat message event received: {event}") 
         message = event['message']
         username = event['username']
         sender = event['sender']
