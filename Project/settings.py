@@ -214,13 +214,13 @@ CHANNEL_LAYERS = {
         'CONFIG': {
             "hosts": [
                 {
-                    "address": "rediss://ec2-52-50-233-108.eu-west-1.compute.amazonaws.com:31670",
+                    "address": "rediss://ec2-34-240-54-123.eu-west-1.compute.amazonaws.com:12939",
                     "password": "p8835fa9f99270fe67be289ab561b4ac6f3497d8159e55b9259e3c5f429a62069",
                     "ssl_cert_reqs": None  # Optional: Disable SSL certificate verification if required
                 }
-                ],
-                  "capacity": 1000,  # Increase the number of messages per channel (default is 100)
-                "expiry": 60, # Set the expiry time for messages (default is 60 seconds) 
+                ]
+                #   "capacity": 1000,  # Increase the number of messages per channel (default is 100)
+                # "expiry": 60, # Set the expiry time for messages (default is 60 seconds) 
         
         },
     },
