@@ -1245,7 +1245,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                             setCanType(true); // Allow typing if no second user joins
                             setMessages((prevMessages) => [
                                 ...prevMessages,
-                                { username: 'System', message: 'You are now connected.' }
+                                { username: 'System', message: 'The Instructor has joined the chat. After reading the instructions on the left side of your screen, please ask questions here.' }
                             ]);
                             console.log('2 minutes elapsed. Allowing typing for first user.');
                         }, 120000); // 2 minutes
@@ -1256,7 +1256,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                         setCanType(true); // Allow typing immediately
                         setMessages((prevMessages) => [
                             ...prevMessages,
-                            { username: 'System', message: 'You are now connected.' }
+                            { username: 'System', message: 'You are now connected to the Performer. After reading the instructions on the left side of your screen, please guide here properly.' }
                         ]);
                         console.log('Second user connected. Allowing typing immediately.');
                     }
