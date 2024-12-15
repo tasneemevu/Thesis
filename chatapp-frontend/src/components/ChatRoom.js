@@ -1585,14 +1585,14 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                     <li>Use the <b>Chat Window</b> to ask questions in your previously <b>Selected Language</b> whenever you need clarification for correctly annotating an image.</li>
                     <li>For <b>example</b>, if your <b>Selected Language</b> is English, you could ask: "Hello! What do I need to do in <b>Task 1</b>?"</li>
                     <li>It is essential to ask questions in your <b>Selected Language</b>.</li>
-                    <li>Please be specific when asking questions and avoid sharing any personal information.</li>
+                    <li>Please be specific when asking questions and <b>avoid sharing any personal information</b>.</li>
                     <li>Once you complete <b>Task 3</b> and click on <b>Save Annotated Images</b>, you will see a <b>Payment Code</b> at the bottom of the page.</li>
                     <li>Copy the <b>Payment Code</b> and paste it into Microworkers to receive your payment.</li>
                     <li>No worries, if the <b>Instructor</b> leaves the chat without guiding you properly, you will still be paid .</li>
                     </ul>
 
 
-                    <center><strong>Task {taskIndex + 1} <br></br>  {taskIndex === 0 && 'Welcome to Task 1'}
+                    <center><strong style={{ color: 'green' }}>Task {taskIndex + 1} <br></br>  {taskIndex === 0 && 'Welcome to Task 1'}
                         {taskIndex === 1 && 'Congratulations, you are now on Task 2'}
                         {taskIndex === 2 && 'Congratulations, you are on Task 3'}</strong></center><br/>
                         <p>Annotate the image according to Instructor's guidance by placing the <b>Cursor</b> and then dragging and drawing <b>Rectangles</b> on the image.
@@ -1646,17 +1646,18 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
     <li><b>Task 1</b> is to find and <b>annotate</b> the <b>banana</b> in the basket.</li>
     <li><b>Task 2</b> is to find and mark all the <b>red fruits</b> in the basket.</li>
     <li><b>Task 3</b> is to find and mark the <b>strawberry</b> in the basket.</li>
+    <li>After each task there will be Next button below the image to go the next task for the Performer.</li>
     <li>The annotation will be done by clicking the mouse cursor and dragging it to draw a rectangle around the fruits.</li>
-    <li>Do not share any personal information in the chat.</li>
+    <li><b>Do not share any personal information in the chat.</b></li>
     <li>When you are notified in the <b>Chat Window</b> that another user is connected, you can begin assisting them.</li>
     <li>Please do not rush; take your time and help them step by step.</li>
     <li>You can start your conversation by writing in your <b>Selected Language</b> as for Example in English, "Hello! How can I assist you today?"</li>
     <li>It is essential to instruct the <b>Performer</b> in your <b>Selected Language</b>.</li>
     <li>After assisting the Performer, you will see a <b>Payment Code</b> at the bottom of the page.</li>
-    <li>Please wait for a total of <b>8 minutes</b> for the <b>Payment Code</b> to be generated. The <b>8 minutes</b> will be counted from when you join the chatroom. </li>
+    <li>Please wait for a total of <b>8 minutes</b> for the <b>Payment Code</b> to be generated. The <b>8 minutes</b> will be counted from the time you joined the chatroom. </li>
     <li>You need to copy and paste the <b>Payment Code</b> into Microworkers to receive your payment.</li>
     <li>If you do not properly assist and guide the <b>Performer</b>, you may not receive the payment, even if you copy and paste the code.</li>
-    <li>But no worries, if the <b>Performer</b> leaves the chat in the middle of the task, you will still be paid (even if you do not get the payment code).</li>
+    <li>But no worries, if the <b>Performer</b> leaves the chat in the middle of the task, you will still be paid.</li>
 </ul>
 
         <br></br>
