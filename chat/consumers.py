@@ -570,7 +570,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 {
                     'type': 'user_joined',
-                    'message': 'The Instructor has joined the chat. After reading the all the instructions from the left side of the screen, ask questions here.',
+                    'message': 'The Instructor has now joined the chat. After reading all the instructions from the left side of the screen, ask questions here.',
                     'user2_joined': True,
                     'isChatGPT': is_chatgpt  # Include isChatGPT flag
                 }
@@ -592,7 +592,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.room_group_name,
                     {
                         'type': 'user_joined',
-                        'message': f'{unique_chatgpt_id} has joined the chat.',
+                        'message': 'The Instructor has now joined the chat. After reading all the instructions from the left side of the screen, ask questions here.',
                         'user2_joined': True,
                         'isChatGPT': True  # Indicate that ChatGPT has joined
                     }

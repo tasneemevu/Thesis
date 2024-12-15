@@ -155,9 +155,9 @@ def assign_chatroom(request):
                     chatroom.user2_language = selected_language  # Store language for ChatGPT
                     chatroom.chat_completed = True  # Mark the chatroom as completed
                     chatroom.save()
-                    message = "You have been connected to a user. Start your conversation."
+                    message = "You have been connected to the Instructor. After reading all the instructions on the left side of your screen,  please ask your questions here."
                 else:
-                    message = "Please wait for another person to join the chatroom. It will not take more than 2 minutes."
+                    message = "Please wait for the Instructor to join the chatroom. It will not take more than 2 minutes. In the meantime, please read the instructions on the left side of your screen."
 
         return JsonResponse({
             'chatroom_id': available_room.id if available_room else chatroom.id,
