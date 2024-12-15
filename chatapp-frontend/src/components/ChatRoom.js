@@ -1256,7 +1256,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                         setCanType(true); // Allow typing immediately
                         setMessages((prevMessages) => [
                             ...prevMessages,
-                            { username: 'System', message: 'You are now connected to the Intructor. After reading all the instructions on the left side of your screen, please guide here properly.' }
+                            { username: 'System', message: 'You are now connected to the Performer. After reading all the instructions on the left side of your screen, please guide here properly.' }
                         ]);
                         console.log('Second user connected. Allowing typing immediately.');
                     }
@@ -1638,8 +1638,8 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
             {userRole === 'second' && !isChatGPT && (
                 <div id="second-user-instructions" className="second-user-instructions" >
                     <center><strong>Welcome! You are the Instructor of the task. Please read the instructions carefully:</strong></center>
-                   
-    <li>You are the Instructor. So you do not need to annotate anything, you will only guide the <b>Performer</b> to annotate.</li>               <ul>
+    <ul>               
+    <li>You are the Instructor. So you do not need to annotate anything, you will only guide the <b>Performer</b> to annotate.</li>              
     <li>There will be a total of three annotation tasks in the below <b>Image</b>: <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>.</li>
     <li>On the <b>right side</b> of the screen, there is a <b>Chat Window</b> where a <b>Performer</b> will be connected, whom you will guide through each task.</li>
     <li>The performer will complete <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>. You need to instruct them only on your previously <b>Selected Language</b> about what to perform in each task.</li>
