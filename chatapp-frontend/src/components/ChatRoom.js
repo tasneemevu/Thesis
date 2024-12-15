@@ -1256,7 +1256,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                         setCanType(true); // Allow typing immediately
                         setMessages((prevMessages) => [
                             ...prevMessages,
-                            { username: 'System', message: 'You are now connected to the Performer. After reading all the instructions on the left side of your screen, please guide here properly.' }
+                            { username: 'System', message: 'You are now connected' }
                         ]);
                         console.log('Second user connected. Allowing typing immediately.');
                     }
@@ -1595,9 +1595,10 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                     <center><strong style={{ color: 'green' }}>Task {taskIndex + 1} <br></br>  {taskIndex === 0 && 'Welcome to Task 1'}
                         {taskIndex === 1 && 'Congratulations, you are now on Task 2'}
                         {taskIndex === 2 && 'Congratulations, you are on Task 3'}</strong></center><br/>
-                        <p>Annotate the image according to Instructor's guidance by placing the <b>Cursor</b>, clicking and then dragging to draw <b>Rectangles</b> on the image.
-                        After drawing <b>Rectangle</b> on the fruits, there will be a <b> Description</b> popup. Please write the name of the fruit there and if you are sure about the
-                        annotation, then press the <b>Submit</b> button there. If you are not sure, you can click anywhere on the image, then again you can draw the <b>Rectangle</b>.</p>
+                        <p>Ask the <b>Instructor</b> what you have to do in this Task in your <b>Selected Language</b>. Then come here to annotate the fruit by placing the <b>Cursor</b>, clicking and then dragging to draw <b>Rectangles</b> on the image.
+                        After drawing <b>Rectangle</b> on the fruit, there will be a <b> Description</b> popup. Please write the name of the fruit there and if you are sure about the
+                        annotation, then press the <b>Submit</b> button there. If you are not sure, you can click anywhere on the image, then again you can draw the <b>Rectangle</b>.
+                        <b color='red'>If you have to annotate multiple fruits in this task, annotate them one by one with the description.</b></p>
                     
 
                         <Annotation

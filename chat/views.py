@@ -122,7 +122,7 @@ def assign_chatroom(request):
                     available_room.user2_worker_id = worker_id  # Store worker_id
                     available_room.user2_campaign_id = campaign_id # Store language for user2
                     available_room.save()
-                    message = "You have been connected to the Performer."
+                    message = "You have been connected to the Performer. Please read the instructions carefully on the left side of your screen and guide the Performer here properly."
                 else:
                     # The waiting time exceeds 2 minutes, connect to ChatGPT
                     unique_chatgpt_id = f"UserC_{available_room.id}"
