@@ -1639,14 +1639,14 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                 <div id="second-user-instructions" className="second-user-instructions" >
                     <center><strong>Welcome! You are the Instructor of the task. Please read the instructions carefully:</strong></center>
                    
-                    <ul>
+     <li>You are the Instructor. So you do not need to annotate anything, you will only guide the <b>Performer</b> to annotate.</li>               <ul>
     <li>There will be a total of three annotation tasks in the below <b>Image</b>: <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>.</li>
     <li>On the <b>right side</b> of the screen, there is a <b>Chat Window</b> where a <b>Performer</b> will be connected, whom you will guide through each task.</li>
     <li>The performer will complete <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>. You need to instruct them only on your previously <b>Selected Language</b> about what to perform in each task.</li>
     <li><b>Task 1</b> is to find and <b>annotate</b> the <b>banana</b> in the basket.</li>
     <li><b>Task 2</b> is to find and mark all the <b>red fruits</b> in the basket.</li>
     <li><b>Task 3</b> is to find and mark the <b>strawberry</b> in the basket.</li>
-    <li>After each task there will be Next button below the image to go the next task for the Performer.</li>
+    <li>After each task there will be <b>Next button</b> below the image to go the next task for the Performer.</li>
     <li>The annotation will be done by clicking the mouse cursor and dragging it to draw a rectangle around the fruits.</li>
     <li><b>Do not share any personal information in the chat.</b></li>
     <li>When you are notified in the <b>Chat Window</b> that another user is connected, you can begin assisting them.</li>
