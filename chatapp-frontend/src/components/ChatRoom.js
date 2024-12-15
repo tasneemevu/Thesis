@@ -1343,7 +1343,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                     params: {
                         q: text,
                         target: targetLanguage, // Use the selected language here
-                        key: process.env.REACT_APP_GOOGLE_TRANSLATE_API_KEY, // Your API Key
+                        key: process.env.GOOGLE_TRANSLATOR_KEY, // Your API Key
                     },
                     headers: {
                         'Content-Type': 'application/json',
