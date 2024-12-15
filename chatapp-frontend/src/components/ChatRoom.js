@@ -1145,7 +1145,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                 const generatedCode = generatePaymentCode(userId, chatroomId);
                 setPaymentCode(generatedCode); // Set the generated code to state
                 savePaymentCodeToBackend(generatedCode); // Save payment code after generation
-            }, 8 * 60 * 1000); // 12 minutes in milliseconds
+            }, 12 * 60 * 1000); // 12 minutes in milliseconds
 
             return () => clearTimeout(paymentCodeTimer); // Cleanup on component unmount or user leave
         }
