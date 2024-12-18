@@ -1221,12 +1221,19 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
      * Establishes a WebSocket connection and handles incoming messages.
      */
     useEffect(() => {
+        let heartbeatInterval; // For sending pings periodically
         const ws = new WebSocket(`wss://thcrowdchatb-4acf13a87d2c.herokuapp.com/ws/chat/${chatroomId}/`);
         setSocket(ws);
 
         ws.onopen = () => {
             console.log('WebSocket connected');
-            // Connection established, wait for role message
+            // Start sending heartbeat messages to keep the connection alive
+            heartbeatInterval = setInterval(() => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                    console.log('Sent heartbeat ping');
+                }
+            }, 50000); // Ping every 50 seconds
         };
 
         ws.onmessage = async function (e) {
@@ -1305,7 +1312,9 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                         ]);
                     }
                     break;
-
+                case 'pong': // Handle server response to the ping
+                    console.log('Received pong from server');
+                    break;
                 default:
                     console.warn('Unknown message type:', data.type);
             }
@@ -1313,22 +1322,23 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
 
         ws.onclose = function (e) {
             console.error('WebSocket connection closed:', e);
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-                console.log('WebSocket closed. Timer cleared.');
-            }
+            clearInterval(heartbeatInterval); // Stop heartbeat on close
+            setTimeout(() => connectWebSocket(), 5000); // Reconnect after 5 seconds
         };
 
-        // Cleanup on component unmount
-        return () => {
-            ws.close();
-            if (timerRef.current) {
-                clearTimeout(timerRef.current); // Cleanup the timer on component unmount
-                console.log('Component unmounted. Timer cleared.');
-            }
+        ws.onerror = function (e) {
+            console.error('WebSocket error:', e);
+            ws.close(); // Close the WebSocket if an error occurs
         };
-    }, [chatroomId, language, username, loadAnnotations]); // Included 'loadAnnotations' here
+    
+    connectWebSocket(); 
+    return () => {
+        if (socket) {
+            socket.close(); // Close the WebSocket on component unmount
+        }
+        clearInterval(heartbeatInterval); // Clean up the heartbeat interval
+    };
+}, [chatroomId, language, username, loadAnnotations]); // Included 'loadAnnotations' here
 
     /**
      * **Translate Message**
@@ -1577,29 +1587,51 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                      */}
                     <center><strong>Welcome! You are the <b>Performer</b> of the Task. Please read the instructions carefully:</strong></center>
                     <ul>
-                    <li>There will be a total of three annotation tasks: <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>.</li>
-                    <li>At the end of the initial instructions, you will find <b>Task 1</b>, which is already visible.</li>
-                    <li>Upon completing the annotation of the image in <b>Task 1</b>, a <b>Next button</b> will appear, allowing you to proceed to <b>Task 2</b>, followed by <b>Task 3</b> in the same manner.</li>
+                    <li>There will be a total of three <b>annotation</b> tasks: <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>.</li>
+                    {/* <li>At the end of the initial instructions, you will find <b>Task 1</b>, which is already visible.</li> */}
                     <li>On the <b>Right Side</b> of the screen, there is a <b>Chat Window</b> where an <b>Instructor</b> will be available to guide you through each task.</li>
-                    <li>You will receive a notification when another user connects.</li>
-                    <li>Use the <b>Chat Window</b> to ask questions in your previously <b>Selected Language</b> whenever you need clarification for correctly annotating an image.</li>
-                    <li>For <b>example</b>, if your <b>Selected Language</b> is English, you could ask: "Hello! What do I need to do in <b>Task 1</b>?"</li>
-                    <li>It is essential to ask questions in your <b>Selected Language</b>.</li>
-                    <li>Please be specific when asking questions and <b>avoid sharing any personal information</b>.</li>
-                    <li>Once you complete <b>Task 3</b> and click on <b>Save Annotated Images</b>, you will see a <b>Payment Code</b> at the bottom of the page.</li>
+                    <li>Use the <b>Chat Window</b> to ask questions about what you need to do in each <b>Task</b> in your previously <b>Selected Language</b> </li>
+                    <li>It is essential to ask questions in your <b>Selected Language</b>.</li> 
+                    <li>As for Example if your <b>Selected Language </b> is English and you want to ask question for <b>Task 1</b>, you can ask like this: <b>"What do I have to do in Task 1?"</b></li>
+                    <li>Please be specific when asking questions and <b> please avoid sharing any personal information</b>.</li>
+                    <li>Once you complete all the Tasks you will see a <b>Payment Code</b> at the bottom of the page.</li>
                     <li>Copy the <b>Payment Code</b> and paste it into Microworkers to receive your payment.</li>
                     <li>No worries, if the <b>Instructor</b> leaves the chat without guiding you properly, you will still be paid .</li>
                     </ul>
 
 
-                    <center><strong style={{ color: 'green' }}>Task {taskIndex + 1} <br></br>  {taskIndex === 0 && 'Welcome to Task 1'}
-                        {taskIndex === 1 && 'Congratulations, you are now on Task 2'}
-                        {taskIndex === 2 && 'Congratulations, you are on Task 3'}</strong></center><br/>
-                        <p>Ask the <b>Instructor</b> what you have to do in this Task in your <b>Selected Language</b>. Then come here to annotate the fruit by placing the <b>Cursor</b>, clicking and then dragging to draw <b>Rectangles</b> around the fruit so that it is fully inside the <b>Rectangle</b>.
+                    <center><strong style={{ color: 'green' }}>Task {taskIndex + 1} <br></br>  {taskIndex === 0 && 'Hello ! Welcome to Task 1 '}
+                        {taskIndex === 1 && 'Congratulations! you are now on Task 2'}
+                        {taskIndex === 2 && 'Congratulations! you are on Task 3'}</strong></center><br/>
+                        {taskIndex === 0 && (
+                            <>
+                        Ask the <b>Instructor</b> in the <b>Chat Window</b> on the <b>Right side</b> of the screen  what you have to do in <b>Task 1</b> in your <b>Selected Language</b>. Then come here to annotate the fruit by placing the <b>Cursor</b>, clicking and then dragging to draw <b>Rectangles</b> around the fruit so that it is fully inside the <b>Rectangle</b>.
+                        After drawing <b>Rectangle</b> on the fruit, there will be a <b> Description</b> popup. Please write the name of the fruit there and if you are sure about the
+                        annotation, then press the <b>Submit</b> button there. If you are not sure, you can click anywhere on the image, then again you can draw the <b>Rectangle</b>.<br></br>
+                        There will be a <b>Next Button</b> visible below the image to go to the next task.
+                            </>
+                        )}
+                        {taskIndex === 1 && (
+                            <>
+                        Ask the <b>Instructor</b> in the <b>Chat Window</b>on the <b>Right side</b> of the screen what you have to do in <b>Task 2</b> in your <b>Selected Language</b>. Then come here to annotate the fruits by placing the <b>Cursor</b>, clicking and then dragging to draw <b>Rectangles</b> around the fruit so that it is fully inside the <b>Rectangle</b>.
                         After drawing <b>Rectangle</b> on the fruit, there will be a <b> Description</b> popup. Please write the name of the fruit there and if you are sure about the
                         annotation, then press the <b>Submit</b> button there. If you are not sure, you can click anywhere on the image, then again you can draw the <b>Rectangle</b>.<br></br>
                         <p color='red'><b>If you have to annotate multiple fruits in this task, annotate them one by one by submitting the description for each.</b></p><br></br>
-                        There will be a <b>Next Button</b>visible below to go to the next task.</p>
+                        There will be a <b>Next Button</b> visible below the image to go to the next task.
+                    
+                            </>
+                        )}
+                         {taskIndex === 2 && (
+                            <>
+                        Ask the <b>Instructor</b> in the <b>Chat Window</b>on the <b>Right side</b> of the screen what you have to do in <b>Task 3</b> in your <b>Selected Language</b>. Then come here to annotate the fruits by placing the <b>Cursor</b>, clicking and then dragging to draw <b>Rectangles</b> around the fruit so that it is fully inside the <b>Rectangle</b>.
+                        After drawing <b>Rectangle</b> on the fruit, there will be a <b> Description</b> popup. Please write the name of the fruit there and if you are sure about the
+                        annotation, then press the <b>Submit</b> button there. If you are not sure, you can click anywhere on the image, then again you can draw the <b>Rectangle</b>.<br></br>
+                        <p color='red'><b>If you have to annotate multiple fruits in this task, annotate them one by one by submitting the description for each.</b></p><br></br>
+                        There will be a <b>Save Annotated Images Button </b> visible below the image to click for having the <b>Payment Code</b>.
+                    
+                            </>
+                        )}
+                        <br></br>
                     
 
                         <Annotation
@@ -1641,24 +1673,19 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                 <div id="second-user-instructions" className="second-user-instructions" >
                     <center><strong>Welcome! You are the Instructor of the task. Please read the instructions carefully:</strong></center>
     <ul>               
-    <li>You are the Instructor. So you do not need to annotate anything, you will only guide the <b>Performer</b> to annotate.</li>              
-    <li>There will be a total of three annotation tasks in the below <b>Image</b>: <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>.</li>
-    <li>On the <b>right side</b> of the screen, there is a <b>Chat Window</b> where a <b>Performer</b> will be connected, whom you will guide through each task.</li>
+    <li>You will not annotate anything. Your role is to only guide the <b>Performer</b> to <b>annotate</b> fruits in the image.</li>              
+    <li>On the <b>Right side</b> of the screen, there is a <b>Chat Window</b> where a <b>Performer</b> will be connected, whom you will guide through each task.</li>
     <li>The performer will complete <b>Task 1</b>, <b>Task 2</b>, and <b>Task 3</b>. You need to instruct them only on your previously <b>Selected Language</b> about what to perform in each task.</li>
-    <li><b>Task 1</b> is to find and <b>annotate</b> the <b>banana</b> in the basket.</li>
-    <li><b>Task 2</b> is to find and mark all the <b>red fruits</b> in the basket.</li>
-    <li><b>Task 3</b> is to find and mark the <b>strawberry</b> in the basket.</li>
-    <li>After each task there will be <b>Next button</b> below the image to go the next task for the Performer.</li>
-    <li>The annotation will be done by clicking the mouse cursor and dragging it to draw a rectangle around the fruits.</li>
+    <li><b>Task 1</b> is to <b>annotate</b> the <b>banana</b> in the basket.</li>
+    <li><b>Task 2</b> is to <b>annotate</b> all the <b>red fruits</b> one by one in the basket.</li>
+    <li><b>Task 3</b> is to <b>annotate</b> all the <b>strawberies</b> in the basket.</li>
+    <li>The annotation should be done by clicking the mouse cursor and dragging it to draw a <b> Rectangle</b>around the fruit.</li>
     <li><b>Do not share any personal information in the chat.</b></li>
-    <li>When you are notified in the <b>Chat Window</b> that another user is connected, you can begin assisting them.</li>
-    <li>Please do not rush; take your time and help them step by step.</li>
-    <li>You can start your conversation by writing in your <b>Selected Language</b> as for Example in English, "Hello! How can I assist you today?"</li>
-    <li>It is essential to instruct the <b>Performer</b> in your <b>Selected Language</b>.</li>
-    <li>After assisting the Performer, you will see a <b>Payment Code</b> at the bottom of the page.</li>
-    <li>Please wait for a total of <b>8 minutes</b> for the <b>Payment Code</b> to be generated. The <b>8 minutes</b> will be counted from the time you joined the chatroom. </li>
-    <li>You need to copy and paste the <b>Payment Code</b> into Microworkers to receive your payment.</li>
-    <li>If you do not properly assist and guide the <b>Performer</b>, you may not receive the payment, even if you copy and paste the code.</li>
+    <li>Please guide the <b>Performer</b> according to their questions step by step.</li>
+    <li>It is essential to guide the <b>Performer</b> by writing in your <b>Selected Language</b> as for Example if it is in English, <b>"Hello! How can I assist you today?"</b></li>
+    <li>Please wait for a total of <b>12 minutes</b> for the <b>Payment Code</b> to be generated. The <b>12 minutes</b> will be counted from the time you joined the chatroom. </li>
+    <li>Copy and paste the <b>Payment Code</b> into Microworkers to receive your payment.</li>
+    <li>If you do not properly assist the <b>Performer</b>, you may not receive the payment.</li>
     <li>But no worries, if the <b>Performer</b> leaves the chat in the middle of the task, you will still be paid.</li>
 </ul>
 
