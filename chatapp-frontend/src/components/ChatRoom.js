@@ -1221,19 +1221,12 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
      * Establishes a WebSocket connection and handles incoming messages.
      */
     useEffect(() => {
-        let heartbeatInterval; // For sending pings periodically
         const ws = new WebSocket(`wss://thcrowdchatb-4acf13a87d2c.herokuapp.com/ws/chat/${chatroomId}/`);
         setSocket(ws);
 
         ws.onopen = () => {
             console.log('WebSocket connected');
-            // Start sending heartbeat messages to keep the connection alive
-            heartbeatInterval = setInterval(() => {
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'ping' }));
-                    console.log('Sent heartbeat ping');
-                }
-            }, 50000); // Ping every 50 seconds
+            // Connection established, wait for role message
         };
 
         ws.onmessage = async function (e) {
@@ -1312,9 +1305,7 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
                         ]);
                     }
                     break;
-                case 'pong': // Handle server response to the ping
-                    console.log('Received pong from server');
-                    break;
+
                 default:
                     console.warn('Unknown message type:', data.type);
             }
@@ -1322,23 +1313,22 @@ function ChatRoom({ chatroomId, userId, username, message, language }) {
 
         ws.onclose = function (e) {
             console.error('WebSocket connection closed:', e);
-            clearInterval(heartbeatInterval); // Stop heartbeat on close
-            setTimeout(() => connectWebSocket(), 5000); // Reconnect after 5 seconds
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+                console.log('WebSocket closed. Timer cleared.');
+            }
         };
 
-        ws.onerror = function (e) {
-            console.error('WebSocket error:', e);
-            ws.close(); // Close the WebSocket if an error occurs
+        // Cleanup on component unmount
+        return () => {
+            ws.close();
+            if (timerRef.current) {
+                clearTimeout(timerRef.current); // Cleanup the timer on component unmount
+                console.log('Component unmounted. Timer cleared.');
+            }
         };
-    
-    connectWebSocket(); 
-    return () => {
-        if (socket) {
-            socket.close(); // Close the WebSocket on component unmount
-        }
-        clearInterval(heartbeatInterval); // Clean up the heartbeat interval
-    };
-}, [chatroomId, language, username, loadAnnotations]); // Included 'loadAnnotations' here
+    }, [chatroomId, language, username, loadAnnotations]); // Included 'loadAnnotations' here
 
     /**
      * **Translate Message**

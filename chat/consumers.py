@@ -606,17 +606,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         message = data['message']
         username = data['username']
-        message_type = data.get('type', None)
-    
-    # Handle Ping-Pong for Heartbeat
-        if message_type == 'ping':
-            print("Ping received. Sending Pong...")
-            await self.send(text_data=json.dumps({
-                'type': 'pong'
-            }))
-            return  # Exit after responding to ping
-        message = data.get('message', '')
-        username = data.get('username', '')
 
         # Fetch the user and chatroom from the database
         user = await sync_to_async(User.objects.get)(username=username)
